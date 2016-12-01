@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.GridLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:columnCount="2">
+
+    <android.support.v4.widget.Space
+        app:layout_columnSpan="2"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1" />
+
+    <TextView
+        android:id="@+id/detail_date_textview"
+        android:layout_marginBottom="@dimen/abc_list_item_padding_horizontal_material"
+        android:layout_marginTop="@dimen/abc_list_item_padding_horizontal_material"
+        android:fontFamily="sans-serif"
+        android:gravity="center_horizontal"
+        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+        android:textColor="@color/colorPrimaryDark"
+        app:layout_columnSpan="2"
+        app:layout_columnWeight="1"
+        app:layout_gravity="fill_horizontal"
+        android:text="Today, April 03"
+        tools:text="Today, April 03" />
+
+    <TextView
+        android:id="@+id/stock_price_textview"
+        android:layout_width="0dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="72sp"
+        app:layout_columnSpan="2"
+        app:layout_columnWeight="1"
+        app:layout_gravity="fill_horizontal"
+        android:text="$113"
+        tools:text="$113" />
+    <TextView
+        android:id="@+id/detail_high_textview"
+        android:layout_width="0dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="left|start"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="24sp"
+        app:layout_columnWeight="1"
+        app:layout_gravity="fill_horizontal"
+        android:text="$113.709"
+        tools:text="$113.709" />
+
+    <TextView
+        android:id="@+id/detail_low_textview"
+        android:layout_width="0dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="right|end"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="24sp"
+        app:layout_columnWeight="1"
+        app:layout_gravity="fill_horizontal"
+        android:text="$110.43"
+        tools:text="$110.43" />
+
+    <TextView
+        android:id="@+id/detail_change_textview"
+        style="@style/PercentChangeTextStyle"
+        android:layout_width="0dp"
+        android:layout_margin="@dimen/abc_list_item_padding_horizontal_material"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center_horizontal"
+        android:textColor="@color/colorPrimaryText"
+        android:textSize="24sp"
+
+        app:layout_columnSpan="2"
+        app:layout_columnWeight="1"
+        android:background="@drawable/percent_change_pill_green"
+        android:text="100%"
+        tools:text="100%" />
+
+    <android.support.v4.widget.Space
+        app:layout_columnSpan="2"
+        app:layout_columnWeight="1"
+        app:layout_rowWeight="1" />
+
+</android.support.v7.widget.GridLayout>
