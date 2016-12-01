@@ -87,6 +87,13 @@ public final class QuoteSyncJob {
                     //TODO Snackbar Message for Error in Stock Symbol
                     break ;
                 }
+                //float previousClose = quote.getPreviousClose().floatValue();
+                //float dayOpen = quote.getOpen().floatValue();
+                /*if(quote.getDayLow()!= null && quote.getDayHigh()!=null){
+                    dayHigh = quote.getDayHigh().floatValue();
+                    dayLow = quote.getDayLow().floatValue();
+                }*/
+
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
                 float percentChange = quote.getChangeInPercent().floatValue();

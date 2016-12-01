@@ -10,5 +10,7 @@
     <dimen name="list_item_extra_padding">4dp</dimen>
     <dimen name="details_app_bar_overlap">24dp</dimen>
     <dimen name="detail_card_elevation">4dp</dimen>
+    <dimen name="detail_container_bottom_margin">8dp</dimen>
+
 
 </resources>

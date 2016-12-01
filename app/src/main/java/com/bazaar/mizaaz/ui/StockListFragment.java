@@ -118,6 +118,9 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(symbol), null, null);
             }
         }).attachToRecyclerView(recyclerView);
+
+        setHasOptionsMenu(true);
+
         return root_view;
     }
 
@@ -165,7 +168,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onResume() {
         super.onResume();
-        getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
+        //getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
     }
 
     @OnClick(R.id.fab)
@@ -222,6 +225,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             stockHistoryMap.put(data.getString(Contract.Quote.POSITION_SYMBOL),data.getString(Contract.Quote.POSITION_HISTORY));
 
         }
+
     }
 
 
@@ -240,6 +244,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             item.setIcon(R.drawable.ic_dollar);
         }
     }
+
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {

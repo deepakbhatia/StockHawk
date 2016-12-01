@@ -7,6 +7,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
 import com.github.mikephil.charting.charts.LineChart;
@@ -38,6 +39,16 @@ public class StockDetailActivityFragment extends Fragment {
 
     @BindView(R.id.stockDetailChart)
     LineChart stockChart;
+    @BindView(R.id.detail_date_textview)
+    TextView detailDateTextView;
+    @BindView(R.id.detail_high_textview)
+    TextView detailHighTextView;
+    @BindView(R.id.detail_change_textview)
+    TextView detailChangeTextView;
+    @BindView(R.id.detail_low_textview)
+    TextView detailLowTextView;
+    @BindView(R.id.stock_price_textview)
+    TextView detailPriceTextView;
     XAxis xAxis;
 
     public StockDetailActivityFragment() {
@@ -87,7 +98,7 @@ public class StockDetailActivityFragment extends Fragment {
 
         Bundle stockDetailArg = getArguments();
 
-
+        detailLowTextView.setText("100.3");
         if(stockDetailArg !=null){
             if(stockDetailArg.containsKey(StockDetailActivityFragment.DETAIL_SYMBOL))
                 symbol = stockDetailArg.getString(StockDetailActivityFragment.DETAIL_SYMBOL);
@@ -102,13 +113,17 @@ public class StockDetailActivityFragment extends Fragment {
             //stockChart = (LineChart)stockDetailView.findViewById(R.id.stockDetailChart);
 
             stockChart.setBackgroundColor(getActivity().getResources().getColor(android.R.color.white));
+
+            //stockChart.setVisibility(View.GONE);
             xAxis = stockChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
-            xAxis.setTextSize(10f);
+            xAxis.setTextSize(12f);
             xAxis.setTextColor(Color.WHITE);
             xAxis.setDrawAxisLine(true);
             xAxis.setDrawGridLines(false);
-            xAxis.setTextColor(Color.rgb(255, 192, 56));
+            xAxis.setTextColor(Color.BLACK);
+            xAxis.setAvoidFirstLastClipping(true);
+            xAxis.setSpaceBetweenLabels(2);
         /*xAxis.setCenterAxisLabels(true);
         xAxis.setGranularity(24f); // one hour
         xAxis.setValueFormatter(new IAxisValueFormatter() {
