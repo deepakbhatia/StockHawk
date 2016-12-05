@@ -12,6 +12,9 @@ import android.util.Log;
 
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
+import com.google.android.gms.gcm.GcmNetworkManager;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -33,20 +36,19 @@ import yahoofinance.quotes.stock.StockQuote;
 
 public final class QuoteSyncJob {
 
-    Calendar from = Calendar.getInstance();
 
 
-    static final int ONE_OFF_ID = 3;
+    private static final int ONE_OFF_ID = 3;
     private static final String ACTION_DATA_UPDATED = "com.bazaar.mizaaz.ACTION_DATA_UPDATED";
-    private static final String ACTION_HISTORICAL_DATA_UPDATED = "com.bazaar.mizaaz.ACTION_HISTORICAL_DATA_UPDATED";
 
-    private static final int PERIOD = 10000;
-    private static final int HISTORIC_PERIOD = 86400000;
+    private static final int PERIOD = 3600000;
 
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
-    private static final int HISTORIC_PERIODIC_ID = 2;
-    private static final int HISTORIC_ONE_OFF_ID = 4;
+
+    private static GcmNetworkManager mGcmNetworkManager ;
+    ;
+    private EventBus bus = EventBus.getDefault();
 
     static void getQuotes(Context context,Calendar from) {
 
@@ -85,15 +87,23 @@ public final class QuoteSyncJob {
                 if(quote.getPrice() == null)
                 {
                     //TODO Snackbar Message for Error in Stock Symbol
-                    break ;
+                    continue ;
                 }
-                //float previousClose = quote.getPreviousClose().floatValue();
-                //float dayOpen = quote.getOpen().floatValue();
+                float previousClose = 0;
+                if(quote.getPreviousClose()!= null)
+                    previousClose = quote.getPreviousClose().floatValue();
+                float dayOpen = 0;
+                if(quote.getOpen()!=null)
+                    dayOpen = quote.getOpen().floatValue();
                 /*if(quote.getDayLow()!= null && quote.getDayHigh()!=null){
                     dayHigh = quote.getDayHigh().floatValue();
                     dayLow = quote.getDayLow().floatValue();
                 }*/
 
+                String stockDateStr = quote.getLastTradeDateStr();
+
+                //TODO
+                Log.d("stockDateStr",stockDateStr+":"+previousClose+":"+dayOpen);
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
                 float percentChange = quote.getChangeInPercent().floatValue();
@@ -103,22 +113,11 @@ public final class QuoteSyncJob {
 
                 StringBuilder historyBuilder = new StringBuilder();
 
-                long stockPriceDate = 0;
+                long stockPriceDate;
                 for (HistoricalQuote it : history) {
                     stockPriceDate = it.getDate().getTimeInMillis();
                     BigDecimal closingPrice = it.getClose();
-                    ContentValues historyQuoteCV = new ContentValues();
-                    /*historyQuoteCV.put(Contract.HistoryQuote.COLUMN_SYMBOL, symbol);
 
-                    historyQuoteCV.put(Contract.HistoryQuote.COLUMN_DATE, it.getDate().getTimeInMillis());
-
-                    historyQuoteCV.put(Contract.HistoryQuote.COLUMN_PRICE, String.valueOf(closingPrice));
-
-                    quoteCVs.add(historyQuoteCV);*/
-                  /* Uri historyUpdateRecord = context.getContentResolver().insert(Contract.HistoryQuote.uri,
-                            historyQuoteCV);
-
-*/
                     historyBuilder.append(stockPriceDate);
                     historyBuilder.append(", ");
                     historyBuilder.append(closingPrice);
@@ -131,7 +130,9 @@ public final class QuoteSyncJob {
                 quoteCV.put(Contract.Quote.COLUMN_PERCENTAGE_CHANGE, percentChange);
                 quoteCV.put(Contract.Quote.COLUMN_ABSOLUTE_CHANGE, change);
                 quoteCV.put(Contract.Quote.COLUMN_HISTORY, historyBuilder.toString());
-                quoteCV.put(Contract.Quote.COLUMN_DATE, stockPriceDate);
+                quoteCV.put(Contract.Quote.COLUMN_DATE, stockDateStr);
+                quoteCV.put(Contract.Quote.COLUMN_OPEN, dayOpen);
+                quoteCV.put(Contract.Quote.COLUMN_PREVIOUS_CLOSE, previousClose);
 
                 quoteCVs.add(quoteCV);
 
@@ -174,23 +175,18 @@ public final class QuoteSyncJob {
         JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
         scheduler.schedule(builder.build());
-    }
+       /* if(mGcmNetworkManager == null)
+            mGcmNetworkManager = GcmNetworkManager.getInstance(context);
 
-    private static void BulkPeriodic(Context context) {
-        Timber.d("Scheduling a periodic task");
+        Task task = new PeriodicTask.Builder()
+                .setService(StockQuoteService.class)
+                .setPeriod(10)
+                .setFlex(5)
+                .setTag(StockQuoteService.TAG_TASK_PERIODIC)
+                .setPersisted(true)
+                .build();
 
-
-        JobInfo.Builder builder = new JobInfo.Builder(HISTORIC_PERIODIC_ID, new ComponentName(context, HistoryQuoteService.class));
-
-
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(HISTORIC_PERIOD)
-                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
-
-
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-        scheduler.schedule(builder.build());
+        mGcmNetworkManager.schedule(task);*/
     }
 
 
@@ -201,12 +197,12 @@ public final class QuoteSyncJob {
 
         schedulePeriodic(context);
 
-        //BulkPeriodic(context);
 
 
     }
 
-    public static void oneOffCurrent(Context context){
+    //TODO GCM
+    private static void oneOffCurrent(Context context){
         JobInfo.Builder builder = new JobInfo.Builder(ONE_OFF_ID, new ComponentName(context, QuoteJobService.class));
 
 
@@ -218,18 +214,7 @@ public final class QuoteSyncJob {
 
         scheduler.schedule(builder.build());
     }
-    public static void oneOffBulk(Context context){
-        JobInfo.Builder builder = new JobInfo.Builder(HISTORIC_ONE_OFF_ID, new ComponentName(context, HistoryQuoteService.class));
 
-
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
-
-
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
-
-        scheduler.schedule(builder.build());
-    }
     synchronized public static void syncImmediately(Context context) {
 
 
@@ -238,15 +223,28 @@ public final class QuoteSyncJob {
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 
 
+
+        /*Task task = new OneoffTask.Builder()
+                .setService(StockQuoteService.class)
+                .setExecutionWindow(0, 1)
+                .setTag(StockQuoteService.TAG_TASK_ONEOFF)
+                .setUpdateCurrent(false)
+                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
+                .setRequiresCharging(false)
+                .build();
+
+        if(mGcmNetworkManager == null)
+        mGcmNetworkManager = GcmNetworkManager.getInstance(context);
+
+
+        mGcmNetworkManager.schedule(task);*/
+
         //oneOffBulk(context);
 
         if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
             Intent nowIntent = new Intent(context, QuoteIntentService.class);
             context.startService(nowIntent);
-           /*
 
-            Intent historyIntent = new Intent(context, BulkHistoryIntentService.class);
-            context.startService(historyIntent);*/
         } else {
 
             oneOffCurrent(context);

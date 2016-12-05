@@ -7,11 +7,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import com.bazaar.mizaaz.data.Contract.Quote;
 
 
-public class DbHelper extends SQLiteOpenHelper {
+class DbHelper extends SQLiteOpenHelper {
 
 
-    static final String NAME = "StockHawk.db";
-    private static final int VERSION = 1;
+    private static final String NAME = "StockHawk.db";
+    private static final int VERSION = 2;
 
 
     public DbHelper(Context context) {
@@ -27,7 +27,9 @@ public class DbHelper extends SQLiteOpenHelper {
                 Quote.COLUMN_ABSOLUTE_CHANGE + " REAL NOT NULL, " +
                 Quote.COLUMN_PERCENTAGE_CHANGE + " REAL NOT NULL, " +
                 Quote.COLUMN_HISTORY + " TEXT, " +
-                Quote.COLUMN_DATE + " REAL NOT NULL, " +
+                Quote.COLUMN_DATE + " TEXT NOT NULL, " +
+                Quote.COLUMN_OPEN + " REAL NOT NULL, " +
+                Quote.COLUMN_PREVIOUS_CLOSE + " REAL NOT NULL, " +
 
                 "UNIQUE (" + Quote.COLUMN_SYMBOL + ") ON CONFLICT REPLACE);";
 

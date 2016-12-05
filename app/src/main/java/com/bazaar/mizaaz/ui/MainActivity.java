@@ -16,28 +16,40 @@ package com.bazaar.mizaaz.ui;
  * limitations under the License.
  */
 
-import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
+import com.bazaar.mizaaz.data.Contract;
+import com.bazaar.mizaaz.message.NetworkChangeMessage;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
+import butterknife.BindView;
+
+//Todo
+//Stock Duplicate DONE
+//Widget
+//Delete Stock DONE
+//Delete Current Selection DONE
 public class MainActivity extends ActionBarActivity implements StockListFragment.Callback {
 
     private final String LOG_TAG = MainActivity.class.getSimpleName();
     public static final String DETAILFRAGMENT_TAG = "DFTAG";
 
     private boolean mTwoPane;
-    private String mLocation;
-
-    private PendingIntent pendingIntent;
+    private EventBus bus = EventBus.getDefault();
+    @BindView(R.id.fragment_stock_detail_container_empty_view)
+    TextView emptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,15 +59,18 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
 
         Toolbar toolbar = (Toolbar)findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        //noinspection ConstantConditions
         getSupportActionBar().setDisplayShowTitleEnabled(false);
-        /* Retrieve a PendingIntent that will perform a broadcast */
+
+        /* Register for network change event */
+        bus.register(this);
 
         if (findViewById(R.id.fragment_stock_detail_container) != null) {
             // The detail container view will be present only in the large-screen layouts
             // (res/layout-sw600dp). If this view is present, then the activity should be
             // in two-pane mode.
             mTwoPane = true;
-            Log.d("mtwopane",""+mTwoPane);
             // In two-pane mode, show the detail view in this activity by
             // adding or replacing the detail fragment using a
             // fragment transaction.
@@ -69,11 +84,26 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
             getSupportActionBar().setElevation(0f);
         }
 
-        StockListFragment stockListFragment =  ((StockListFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_stock_list));
-        stockListFragment.setTwoPane(mTwoPane);
+        StockListFragment stockListFragment = (StockListFragment) getSupportFragmentManager().findFragmentByTag(getString(R.string.stock_list_fragment_tag));
 
+
+
+        if (stockListFragment == null)
+        {
+            stockListFragment =  new StockListFragment();
+
+
+        }
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_stock_list, stockListFragment, getString(R.string.stock_list_fragment_tag))
+                .commit();
+
+
+        stockListFragment.setTwoPane(mTwoPane);
         QuoteSyncJob.initialize(this);
+
+
     }
 
 
@@ -85,17 +115,7 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
 
-        /*//noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-            return true;
-        }
-*/
         return super.onOptionsItemSelected(item);
     }
 
@@ -122,9 +142,7 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
                 .findFragmentById(R.id.fragment_stock_list)).addStock(symbol);
     }
     @Override
-    public void onItemSelected(String symbol, String contentUri) {
-
-        Log.d("mTwoPane",mTwoPane+":"+contentUri.toString());
+    public void onItemSelected(String symbol) {
 
         if (mTwoPane) {
             // In two-pane mode, show the detail view in this activity by
@@ -133,10 +151,14 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
 
             Bundle args = new Bundle();
             args.putString(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            args.putString(StockDetailActivityFragment.DETAIL_URI, contentUri.toString());
-
-            StockDetailActivityFragment fragment =  StockDetailActivityFragment.newInstance(symbol,contentUri.toString());
-            //fragment.setArguments(args);
+            //args.putString(StockDetailActivityFragment.DETAIL_URI, contentUri.toString());
+            args.putParcelable(StockDetailActivityFragment.DETAIL_URI, Contract.Quote.makeUriForStock(symbol));
+            /*StockDetailActivityFragment df = (StockDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if ( null != df ) {
+                df.updateFragment(symbol,contentUri.toString());
+            }*/
+            StockDetailActivityFragment fragment =  new StockDetailActivityFragment();
+            fragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_stock_detail_container, fragment, DETAILFRAGMENT_TAG)
@@ -145,9 +167,29 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
             Intent openStockDetailIntent = new Intent(this, StockDetailActivity.class);
 
             openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_URI,contentUri);
+            openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_URI,Contract.Quote.makeUriForStock(symbol));
 
             startActivity(openStockDetailIntent);
         }
     }
+
+    @Subscribe
+    public void onEvent(NetworkChangeMessage event){
+
+        View rootView = (View)findViewById(R.id.main_activity_root);
+
+        Snackbar connectMessageBar = Snackbar.make(rootView,event.message,Snackbar.LENGTH_LONG);
+
+        connectMessageBar.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        // Unregister
+        bus.unregister(this);
+        super.onDestroy();
+    }
+
+
+
 }

@@ -1,8 +1,9 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity_root"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:orientation="vertical">
 
     <android.support.v7.widget.Toolbar
@@ -13,14 +14,14 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <ImageView
             android:layout_width="wrap_content"
-            android:layout_height="?attr/listPreferredItemHeight"
-            android:layout_marginTop="?attr/actionBarSize"
+            android:layout_height="wrap_content"
             android:src="@mipmap/ic_launcher"
-            android:layout_gravity="center_horizontal"
-            android:scaleType="center"/>
+            android:layout_gravity="start"
+            android:scaleType="center"
+            android:contentDescription="@string/app_logo"/>
     </android.support.v7.widget.Toolbar>
 
-    <fragment
+    <FrameLayout
         android:id="@+id/fragment_stock_list"
         android:name="com.bazaar.mizaaz.ui.StockListFragment"
         android:layout_width="match_parent"

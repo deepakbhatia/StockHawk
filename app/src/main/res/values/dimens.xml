@@ -7,10 +7,18 @@
 
     <dimen name="list_icon">40dp</dimen>
     <dimen name="appbar_elevation">4dp</dimen>
-    <dimen name="list_item_extra_padding">4dp</dimen>
     <dimen name="details_app_bar_overlap">24dp</dimen>
     <dimen name="detail_card_elevation">4dp</dimen>
-    <dimen name="detail_container_bottom_margin">8dp</dimen>
+    <dimen name="widget_margin">4dp</dimen>
+    <dimen name="widget_item_extra_padding">4dp</dimen>
+
+    <dimen name="detail_card_text_size">22sp</dimen>
+    <dimen name="stock_symbol_size">32sp</dimen>
+    <dimen name="stock_price_text_size">42sp</dimen>
+    <dimen name="stockListMargin">3dp</dimen>
+    <dimen name="stock_detail_text_min_size">12sp</dimen>
+    <dimen name="fab_elevation">6dp</dimen>
+    <dimen name="fab_z">12dp</dimen>
 
 
 </resources>

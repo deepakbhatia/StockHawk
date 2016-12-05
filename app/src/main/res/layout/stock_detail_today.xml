@@ -1,83 +1,91 @@
 <RelativeLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:tool="http://schemas.android.com/apk/res-auto">
+
     <TextView
-        android:id="@+id/detail_date_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
+        android:id="@+id/detail_symbol_textview"
         android:layout_centerHorizontal="true"
         android:layout_marginBottom="@dimen/elementPadding"
         android:layout_marginTop="@dimen/elementPadding"
-        android:fontFamily="sans-serif"
         android:gravity="center_horizontal"
-        android:textAppearance="@style/TextAppearance.AppCompat.Title"
-        android:textColor="@color/colorPrimaryDark"
-        android:text="Today, April 03"
+        style="@style/StockDetailTodayCard"
+        android:textSize="@dimen/stock_symbol_size"
+        android:textStyle="bold"
+        tools:text="GOOG" />
+    <TextView
+        android:id="@+id/detail_date_textview"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:gravity="center_horizontal"
+        style="@style/StockDetailTodayCard"
+        android:textSize="@dimen/stock_detail_text_min_size"
         tools:text="Today, April 03" />
 
     <TextView
         android:id="@+id/stock_price_textview"
-        android:layout_below="@+id/detail_date_textview"
+        android:layout_below="@+id/detail_symbol_textview"
         android:layout_centerHorizontal="true"
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent"
         android:layout_marginBottom="@dimen/elementPadding"
         android:layout_marginTop="@dimen/elementPadding"
-        android:fontFamily="sans-serif-light"
-        android:gravity="center_horizontal"
-        android:textColor="@color/colorPrimaryText"
-        android:textSize="72sp"
-        app:layout_columnSpan="2"
-        app:layout_columnWeight="1"
-        app:layout_gravity="fill_horizontal"
-        android:text="$113"
+        style="@style/StockDetailTodayCard"
+        android:textSize="@dimen/stock_price_text_size"
         tools:text="$113" />
-    <TextView
-        android:id="@+id/detail_high_textview"
+    <LinearLayout
         android:layout_below="@id/stock_price_textview"
         android:layout_alignParentStart="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginStart="@dimen/abc_list_item_padding_horizontal_material"
-
-        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/elementPadding"
+        android:layout_marginStart="@dimen/elementPadding"
         android:layout_width="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:textColor="@color/colorPrimaryText"
-        android:textSize="24sp"
-        android:text="$113.709"
-        tools:text="$113.709" />
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/previousCloseLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/previous_day_close"/>
+        <TextView
+            android:id="@+id/detail_high_textview"
+            android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
+            android:layout_marginStart="@dimen/abc_list_item_padding_horizontal_material"
+            style="@style/StockDetailTodayCard"
+            tools:text="$113.709" />
+    </LinearLayout>
 
-    <TextView
-        android:id="@+id/detail_low_textview"
+    <LinearLayout
+        android:id="@+id/today_opening_section"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_below="@+id/stock_price_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:textColor="@color/colorPrimaryText"
-        android:textSize="24sp"
-        android:text="$110.43"
-        tools:text="$110.43" />
+        android:layout_marginRight="@dimen/elementPadding"
+        android:layout_marginEnd="@dimen/elementPadding"
+        android:orientation="vertical"
+        android:layout_below="@+id/stock_price_textview">
+        <TextView
+            android:id="@+id/todayOpeningLabel"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:text="@string/today_opening"/>
+        <TextView
+            android:id="@+id/detail_low_textview"
+            android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+            android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
+            style="@style/StockDetailTodayCard"
+            tools:text="$110.43" />
+    </LinearLayout>
 
     <TextView
         android:id="@+id/detail_change_textview"
-        style="@style/PercentChangeTextStyle"
+        style="@style/StockDetailTodayCard"
         android:layout_centerHorizontal="true"
-        android:layout_below="@+id/stock_price_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:fontFamily="sans-serif-light"
+        android:layout_below="@+id/today_opening_section"
         android:gravity="center_horizontal"
-        android:textColor="@color/colorPrimaryText"
-        android:textSize="24sp"
         android:background="@drawable/percent_change_pill_green"
-        android:text="100%"
-        tools:text="100%" />
+        tools:text="100%"
+        />
 
 </RelativeLayout>

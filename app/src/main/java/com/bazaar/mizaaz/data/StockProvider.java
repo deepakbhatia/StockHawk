@@ -14,13 +14,13 @@ import android.util.Log;
 
 public class StockProvider extends ContentProvider {
 
-    static final int QUOTE = 100;
-    static final int QUOTE_FOR_SYMBOL = 101;
-    static final int QUOTE_HISTORY_FOR_SYMBOL = 102;
-    static final int QUOTE_DATE_FOR_SYMBOL = 103;
-    static final int TREND_QUOTE  = 104;
+    private static final int QUOTE = 100;
+    private static final int QUOTE_FOR_SYMBOL = 101;
+    private static final int QUOTE_HISTORY_FOR_SYMBOL = 102;
+    private static final int QUOTE_DATE_FOR_SYMBOL = 103;
+    private static final int TREND_QUOTE  = 104;
 
-    static UriMatcher uriMatcher = buildUriMatcher();
+    private static final UriMatcher uriMatcher = buildUriMatcher();
 
     private DbHelper dbHelper;
     private static final SQLiteQueryBuilder sStockByDateQueryBuilder;
@@ -28,7 +28,7 @@ public class StockProvider extends ContentProvider {
     static {
         sStockByDateQueryBuilder = new SQLiteQueryBuilder();
     }
-    static UriMatcher buildUriMatcher() {
+    private static UriMatcher buildUriMatcher() {
         UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_QUOTE, QUOTE);
 
@@ -57,9 +57,10 @@ public class StockProvider extends ContentProvider {
 
     @Nullable
     @Override
-    public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor returnCursor = null;
         SQLiteDatabase db = dbHelper.getReadableDatabase();
+        //TODO
         Log.d("Query:Uri",""+uriMatcher.match(uri));
 
         switch (uriMatcher.match(uri)) {
@@ -104,10 +105,10 @@ public class StockProvider extends ContentProvider {
 
                 break;
 
-            case QUOTE_DATE_FOR_SYMBOL:
+/*            case QUOTE_DATE_FOR_SYMBOL:
                 getStockByDate(uri, projection, sortOrder);
 
-                break;
+                break;*/
             default:
                 throw new UnsupportedOperationException("Unknown URI:" + uri);
         }
@@ -132,7 +133,7 @@ public class StockProvider extends ContentProvider {
 
      */
 
-    private Cursor getStockByDate(
+    /*private void getStockByDate(
             Uri uri, String[] projection, String sortOrder) {
         String symbol = Contract.HistoryQuote.getStockFromUri(uri);
         long date = Long.parseLong(Contract.HistoryQuote.getDateFromUri(uri));
@@ -147,10 +148,10 @@ public class StockProvider extends ContentProvider {
                 null,
                 sortOrder
         );
-    }
+    }*/
     @Nullable
     @Override
-    public String getType(Uri uri) {
+    public String getType(@NonNull Uri uri) {
         return null;
     }
 
@@ -192,7 +193,7 @@ public class StockProvider extends ContentProvider {
     }
 
     @Override
-    public int delete(Uri uri, String selection, String[] selectionArgs) {
+    public int delete(@NonNull Uri uri, String selection, String[] selectionArgs) {
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
         int rowsDeleted;
 
@@ -229,7 +230,7 @@ public class StockProvider extends ContentProvider {
 
 
     @Override
-    public int update(Uri uri, ContentValues values, String selection, String[] selectionArgs) {
+    public int update(@NonNull Uri uri, ContentValues values, String selection, String[] selectionArgs) {
 
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 
@@ -245,7 +246,7 @@ public class StockProvider extends ContentProvider {
     }
 
     @Override
-    public int bulkInsert(Uri uri, ContentValues[] values) {
+    public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
 
         final SQLiteDatabase db = dbHelper.getWritableDatabase();
 

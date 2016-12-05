@@ -14,7 +14,7 @@ import timber.log.Timber;
 
 public class BulkHistoryIntentService extends IntentService {
 
-    public static int HISTORY_PERIOD = -10;
+    private static final int HISTORY_PERIOD = -10;
     public BulkHistoryIntentService() {
         super(BulkHistoryIntentService.class.getSimpleName());
     }

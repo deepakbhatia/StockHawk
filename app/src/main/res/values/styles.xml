@@ -7,17 +7,17 @@
         <item name="toolbarStyle">@style/ToolbarStyle</item>
     </style>
 
-    <style name="PercentChangeTextStyle">
+    <style name="StockChangeStyle" parent="StockDetailTodayCard">
         <item name="android:textSize">20sp</item>
-        <item name="android:textColor">#FFF</item>
+        <item name="android:textColor">@android:color/white</item>
         <item name="android:textStyle">bold</item>
     </style>
 
-    <style name="BidPriceTextStyle">
+    <style name="StockPriceTextStyle" parent="StockDetailTodayCard">
         <item name="android:textSize">20sp</item>
     </style>
 
-    <style name="StockSymbolTextStyle">
+    <style name="StockSymbolTextStyle" parent="StockDetailTodayCard">
         <item name="android:textSize">25sp</item>
         <item name="android:textAllCaps">true</item>
     </style>
@@ -25,5 +25,12 @@
     <style name="ToolbarStyle" parent="Widget.AppCompat.Toolbar">
         <item name="android:background">@color/colorPrimary</item>
         <item name="android:popupTheme">@style/Theme.AppCompat.Light</item>
+    </style>
+    <style name="StockDetailTodayCard">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:fontFamily">sans-serif-light</item>
+        <item name="android:textColor">@color/colorPrimaryText</item>
+        <item name="android:textSize">@dimen/detail_card_text_size</item>
     </style>
 </resources>

@@ -8,47 +8,102 @@
     <uses-permission android:name="android.Manifest.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name="com.bazaar.mizaaz.StockHawkApp"
+        android:name=".StockHawkApp"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name="com.bazaar.mizaaz.ui.MainActivity">
+        <activity android:name=".ui.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
+        <!--
+        <service android:name="com.bazaar.mizaaz.sync.StockQuoteService"
+            android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
+            </intent-filter>
+        </service>
+        -->
         <service
-            android:name="com.bazaar.mizaaz.sync.QuoteIntentService"
+            android:name=".sync.QuoteIntentService"
             android:exported="false" />
-       <!-- <service
+        <!--
+            <service
             android:name=".sync.BulkHistoryIntentService"
-            android:exported="false" />-->
+            android:exported="false" />
+        -->
 
         <provider
-            android:name="com.bazaar.mizaaz.data.StockProvider"
+            android:name=".data.StockProvider"
             android:authorities="com.bazaar.mizaaz"
             android:exported="true" />
 
         <service
-            android:name="com.bazaar.mizaaz.sync.QuoteJobService"
+            android:name=".sync.QuoteJobService"
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!--<service
+        <!--
+            <service
             android:name=".sync.HistoryQuoteService"
             android:enabled="true"
             android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />-->
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+        -->
 
         <activity
-            android:name="com.bazaar.mizaaz.ui.StockDetailActivity"
-            android:label="@string/title_activity_stock_detail"></activity>
+            android:name=".ui.StockDetailActivity"
+            android:parentActivityName=".ui.MainActivity">
+
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.bazaar.mizaaz.ui.MainActivity" />
+        </activity>
+
+        <!--
+        <service
+            android:name=".widget.StockWidgetService"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
+
+        &lt;!&ndash; provider this should be exported as true. else widget will not be able to read data and will crash&ndash;&gt;
+
+        <provider
+            android:name="com.sam_chordas.android.stockhawk.data.generated.QuoteProvider"
+            android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
+            android:exported="true" />
+
+
+        &lt;!&ndash; Receiver &ndash;&gt;
+
+        <receiver
+            android:name=".widget.S"
+            android:label="@string/widTitle">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_info" />
+        </receiver>
+        -->
+
+        <receiver
+            android:name=".NetworkChangeReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

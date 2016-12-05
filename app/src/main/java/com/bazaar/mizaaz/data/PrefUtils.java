@@ -10,49 +10,73 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import static android.content.Context.MODE_PRIVATE;
+
 public final class PrefUtils {
 
     private PrefUtils() {
     }
 
+    //TODO
+    //Remove Default Stock Options
     public static Set<String> getStocks(Context context) {
         String stocksKey = context.getString(R.string.pref_stocks_key);
-        String initializedKey = context.getString(R.string.pref_stocks_initialized_key);
+        String initializedKey = context.getString(R.string.pref_stocks_init_key);
+
         String[] defaultStocksList = context.getResources().getStringArray(R.array.default_stocks);
-
+        //String[] defaultStocksList = new String[10];
         HashSet<String> defaultStocks = new HashSet<>(Arrays.asList(defaultStocksList));
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences stockListPref = context.getSharedPreferences("stockList", MODE_PRIVATE);
+        SharedPreferences stockAppPrefs = context.getSharedPreferences("stock_pref", MODE_PRIVATE);
 
 
-        boolean initialized = prefs.getBoolean(initializedKey, false);
 
-        if (!initialized) {
-            SharedPreferences.Editor editor = prefs.edit();
-            editor.putBoolean(initializedKey, true);
-            editor.putStringSet(stocksKey, defaultStocks);
+       if(!stockAppPrefs.contains(initializedKey)){
+            SharedPreferences.Editor stockListEditor = stockListPref.edit();
+           stockListEditor.clear();
+           stockListEditor.putStringSet(stocksKey, defaultStocks);
+           stockListEditor.apply();
+
+           SharedPreferences.Editor editor = stockAppPrefs.edit();
+           editor.putBoolean(initializedKey, true);
             editor.apply();
-            return defaultStocks;
+           return defaultStocks;
         }
-        return prefs.getStringSet(stocksKey, new HashSet<String>());
+
+
+        Set<String> prfStocks = stockListPref.getStringSet(stocksKey, new HashSet<String>());
+
+        return prfStocks;
 
     }
 
-    public static void editStockPref(Context context, String symbol, Boolean add) {
-        String key = context.getString(R.string.pref_stocks_key);
-        Set<String> stocks = getStocks(context);
+    private static void editStockPref(Context context, String symbol, Boolean add) {
 
+        SharedPreferences stockListPref = context.getSharedPreferences("stockList", MODE_PRIVATE);
+
+        String key = context.getString(R.string.pref_stocks_key);
+        Set<String> stocks = stockListPref.getStringSet(key,new HashSet<String>());
         if (add) {
             stocks.add(symbol);
         } else {
             stocks.remove(symbol);
         }
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putStringSet(key, stocks);
+        SharedPreferences.Editor editor = stockListPref.edit();
+        editor.clear();
+        editor.putStringSet(key,stocks);
         editor.apply();
     }
 
+    public static boolean checkStock(Context context, String symbol){
+        Set<String> stocks = getStocks(context);
+
+        return stocks.contains(symbol);
+    }
+
+    public static int stockSize(Context context){
+        return getStocks(context).size();
+    }
     public static void addStock(Context context, String symbol) {
         editStockPref(context, symbol, true);
     }

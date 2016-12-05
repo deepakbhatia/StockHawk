@@ -2,17 +2,25 @@ package com.bazaar.mizaaz.ui;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
@@ -28,7 +36,9 @@ import android.widget.TextView;
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
+import com.bazaar.mizaaz.data.Stock;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
+import com.google.gson.Gson;
 
 import java.util.HashMap;
 
@@ -47,79 +57,79 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         StockAdapter.StockAdapterOnClickHandler {
 
     private static final int STOCK_LOADER = 0;
+    private static final String SELECTED_ITEM = "SELECTED_ITEM";
+
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
     @BindView(R.id.fab)
     FloatingActionButton fab;
-    @BindView(R.id.swipe_refresh)
-    SwipeRefreshLayout swipeRefreshLayout;
+    //@BindView(R.id.swipe_refresh)
+    private SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.error)
     TextView error;
+    @BindView(R.id.fragment_stock_list_root)
+    View rootView;
     private StockAdapter adapter;
-    private String stockHistory;
-
-    HashMap stockHistoryMap = new HashMap();
+    private HashMap stockHistoryMap;
     private boolean mTwoPane = false;
-    private static FragmentActivity mContext;
+    private FragmentActivity mContext;
     private Unbinder unbinder;
+    private String swipedSymbol;
+    private int mPosition = -1;
+
 
     @Override
-    public void onClick(String symbol) {
+    public void onClick(String symbol, int position) {
         Timber.d("Symbol clicked: %s", symbol);
 
-        ((Callback)getActivity()).onItemSelected(symbol,(String)stockHistoryMap.get(symbol));
-        /*Intent openStockDetailIntent = new Intent(getActivity(),StockDetailActivity.class);
+        mPosition = position;
 
-        openStockDetailIntent.putExtra("symbol",symbol);
-        openStockDetailIntent.putExtra("stockHistory",(String)stockHistoryMap.get(symbol));
-        startActivity(openStockDetailIntent);*/
+        ((Callback) getActivity()).onItemSelected(symbol);
+
     }
 
-    public interface Callback{
-        public void onItemSelected(String symbol, String uri);
+    public interface Callback {
+        void onItemSelected(String symbol);
     }
 
-    public static interface ClickListener{
-        public void onClick(View view, int position);
-        public void onLongClick(View view,int position);
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // retain this fragment
+        setRetainInstance(true);
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-        View root_view = inflater.inflate(R.layout.fragment_main,container,false);
+        View root_view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        unbinder = ButterKnife.bind(this,root_view);
+        unbinder = ButterKnife.bind(this, root_view);
 
-        //recyclerView = (RecyclerView)root_view.findViewById(R.id.recycler_view);
+
 
         adapter = new StockAdapter(getActivity(), this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
-
+        swipeRefreshLayout = (SwipeRefreshLayout) root_view.findViewById(R.id.swipe_refresh);
 
         swipeRefreshLayout.setOnRefreshListener(this);
         swipeRefreshLayout.setRefreshing(true);
-        onRefresh();
 
 
-        new ItemTouchHelper(new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.RIGHT) {
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                return false;
-            }
 
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-                String symbol = adapter.getSymbolAtPosition(viewHolder.getAdapterPosition());
-                PrefUtils.removeStock(getActivity(), symbol);
-                getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(symbol), null, null);
-            }
-        }).attachToRecyclerView(recyclerView);
+
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),1));
+        setUpItemTouchHelper();
+
+        setUpAnimationDecoratorHelper();
 
         setHasOptionsMenu(true);
+
+
+        onRefresh();
 
         return root_view;
     }
@@ -129,40 +139,61 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mContext  = getActivity();
+        mContext = getActivity();
+
+        if(savedInstanceState!=null){
+            if(savedInstanceState.containsKey(SELECTED_ITEM))
+            {
+                mPosition = savedInstanceState.getInt(SELECTED_ITEM);
+
+
+            }
+
+        }
+
+
     }
 
-    private  boolean networkUp() {
+    private boolean networkUp() {
         ConnectivityManager cm =
                 (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
         return networkInfo != null && networkInfo.isConnectedOrConnecting();
     }
 
-    private  void update(){
+    private void update() {
+
         QuoteSyncJob.syncImmediately(getActivity());
         getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
     }
+
     @Override
     public void onRefresh() {
 
-
         update();
+        if(stockHistoryMap == null || stockHistoryMap.size() == 0)
+            Log.d("stockHistoryMap:","NONE:onRefresh");
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_network));
             error.setVisibility(View.VISIBLE);
         } else if (!networkUp()) {
             swipeRefreshLayout.setRefreshing(false);
-            //Toast.makeText(this, R.string.toast_no_connectivity, Toast.LENGTH_LONG).show();
+            //Toast.makeText(getActivity(), getActivity().getString(R.string.error_no_network), Toast.LENGTH_LONG).show();
         } else if (PrefUtils.getStocks(getActivity()).size() == 0) {
-            Timber.d("WHYAREWEHERE");
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_stocks));
             error.setVisibility(View.VISIBLE);
         } else {
             error.setVisibility(View.GONE);
         }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+
+        outState.putInt(SELECTED_ITEM,mPosition);
     }
 
     @Override
@@ -173,11 +204,19 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
     @OnClick(R.id.fab)
     public void addStockDialog(View view) {
-        new AddStockDialog().show(getChildFragmentManager(), "StockDialogFragment");
+        new AddStockDialog().show(getChildFragmentManager(), getString(R.string.stock_dialog_frag));
     }
 
-    public  void addStock(String symbol) {
+    public void addStock(String symbol) {
+
+
+        if (PrefUtils.checkStock(mContext, symbol)) {
+
+            Snackbar.make(rootView, R.string.stock_in_list_message, Snackbar.LENGTH_LONG).show();
+            return;
+        }
         if (symbol != null && !symbol.isEmpty()) {
+
 
             if (networkUp()) {
                 swipeRefreshLayout.setRefreshing(true);
@@ -188,8 +227,8 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
             PrefUtils.addStock(mContext, symbol);
 
-            update();
-
+            swipeRefreshLayout.setRefreshing(true);
+            onRefresh();
         }
     }
 
@@ -201,28 +240,86 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 null, null, Contract.Quote.COLUMN_SYMBOL);
     }
 
+    private String movieParse(Cursor mCursor){
+        float stockPrice;
+        String stockSymbol;
+        float percentStockChange;
+        float absoluteStockChange;
+        String stockHistory;
+        String stockDate;
+        float stockOpen;
+        float stockClose;
+
+            final int priceIndex = mCursor.getColumnIndex(Contract.Quote.COLUMN_PRICE);
+            final int symbolColIndex = mCursor.getColumnIndex(
+                    Contract.Quote.COLUMN_SYMBOL);
+            final int changeColIndex = mCursor.getColumnIndex(
+                    Contract.Quote.COLUMN_PERCENTAGE_CHANGE);
+
+            final int changeAbsoluteColIndex = mCursor.getColumnIndex(
+                Contract.Quote.COLUMN_ABSOLUTE_CHANGE);
+
+            final int historyColIndex = mCursor.getColumnIndex(
+                    Contract.Quote.COLUMN_HISTORY);
+
+            stockPrice = mCursor.getFloat(priceIndex);
+            stockSymbol = mCursor.getString(symbolColIndex);
+            percentStockChange = mCursor.getFloat(changeColIndex);
+            absoluteStockChange = mCursor.getFloat(changeAbsoluteColIndex);
+            stockDate = mCursor.getString(Contract.Quote.POSITION_DATE);
+            stockOpen = mCursor.getFloat(Contract.Quote.POSITION_OPEN);
+            stockClose = mCursor.getFloat(Contract.Quote.POSITION_PREVIOUS_CLOSE);
+
+        stockHistory = mCursor.getString(historyColIndex);
+
+        Stock stock = new Stock();
+        stock.stockSymbol = stockSymbol;
+        stock.stockCurrentPrice = stockPrice;
+        stock.absoluteStockChange = absoluteStockChange;
+        stock.percentStockChange = percentStockChange;
+        stock.stockHistory = stockHistory;
+        stock.dateValue = stockDate;
+        stock.previousClose = stockClose;
+        stock.stockOpen = stockOpen;
+
+        Gson stockGson = new Gson();
+
+        return stockGson.toJson(stock);
+
+    }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+
         swipeRefreshLayout.setRefreshing(false);
-
-        if (data.getCount() != 0) {
-            error.setVisibility(View.GONE);
-        }
-        //TODO
-        Log.d("DATASIZE",""+data.getColumnNames()[0]);
-        Log.d("DATASIZE",""+data.getColumnNames()[1]);
-        Log.d("DATASIZE",""+data.getColumnNames()[2]);
-        Log.d("DATASIZE",""+data.getColumnNames()[3]);
-        Log.d("DATASIZE",""+data.getColumnNames()[4]);
-        Log.d("DATASIZE",""+data.getColumnNames()[5]);
-
         adapter.setCursor(data);
 
-        stockHistoryMap = new HashMap();
-        while(data.moveToNext()){
-            Log.d("WHYAREWEHERE",""+data.getString(Contract.Quote.POSITION_SYMBOL));
+        if (data.getCount() != 0) {
 
-            stockHistoryMap.put(data.getString(Contract.Quote.POSITION_SYMBOL),data.getString(Contract.Quote.POSITION_HISTORY));
+            error.setVisibility(View.GONE);
+
+            if(mTwoPane){
+
+                final String selectedSymbol;
+
+                if (mPosition == -1) {
+                    mPosition = 0;
+                    selectedSymbol =  adapter.getSymbolAtPosition(0);
+                    //TODO
+                    Log.d("mPosition",selectedSymbol);
+
+                }else{
+                    selectedSymbol =  adapter.getSymbolAtPosition(mPosition);
+
+                }
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        //mPosition = 0;
+                        ((Callback) getActivity()).onItemSelected(selectedSymbol);
+                    }
+
+                });
+            }
 
         }
 
@@ -255,27 +352,241 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     }
 
 
-
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if (id == R.id.action_change_units) {
+
             PrefUtils.toggleDisplayMode(getActivity());
             setDisplayModeMenuItemIcon(item);
-            adapter.notifyDataSetChanged();
+
+            if(adapter.getItemCount() > 0){
+                adapter.notifyDataSetChanged();
+                if(mTwoPane)
+                    ((Callback) getActivity()).onItemSelected( adapter.getSymbolAtPosition(mPosition));
+
+            }
+
             return true;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    public void setTwoPane(boolean mTwoPane){
+    public void setTwoPane(boolean mTwoPane) {
         this.mTwoPane = mTwoPane;
     }
 
-    @Override public void onDestroyView() {
+    @Override
+    public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+
+    private void changeSelection(int previousSelect){
+
+        Log.d("changeSelection",""+previousSelect);
+
+        //if(mPosition  previousSelect)
+        /*if(previousSelect == 0){
+            mPosition = 0;
+        }else if(previousSelect > 0){
+            mPosition = previousSelect - 1;
+        }*/
+        if(mPosition <= previousSelect && mPosition > 0)
+            mPosition = mPosition - 1;
+
+        if(mTwoPane)
+        {
+            recyclerView.post(new Runnable() {
+                @Override
+                public void run() {
+                    mPosition = 0;
+                    ((Callback) getActivity()).onItemSelected(adapter.getSymbolAtPosition(mPosition));
+                }
+
+            });
+        }
+
+    }
+
+
+    /**
+     * This is the standard support library way of implementing "swipe to delete" feature. You can do custom drawing in onChildDraw method
+     * but whatever you draw will disappear once the swipe is over, and while the items are animating to their new position the recycler view
+     * background will be visible. That is rarely an desired effect.
+     */
+    private void setUpItemTouchHelper() {
+
+        ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+
+            // we want to cache these and not allocate anything repeatedly in the onChildDraw method
+            Drawable background;
+            Drawable xMark;
+            int xMarkMargin;
+            boolean initiated;
+
+            private void init() {
+                background = new ColorDrawable(getActivity().getResources().getColor(R.color.colorAccent));
+                xMark = ContextCompat.getDrawable(getActivity(), R.drawable.ic_delete_black_24dp);
+                xMark.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_ATOP);
+                xMarkMargin = (int) getResources().getDimension(R.dimen.elementPadding);
+                initiated = true;
+            }
+
+            // not important, we don't want drag & drop
+            @Override
+            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+                return false;
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
+
+                int previousSelect =  viewHolder.getAdapterPosition();
+                swipedSymbol = adapter.getSymbolAtPosition(previousSelect);
+
+                int deleteRecord = getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(swipedSymbol),null,null);
+
+                PrefUtils.removeStock(getActivity(), swipedSymbol);
+
+                Snackbar.make(rootView, R.string.stock_deleted_message, Snackbar.LENGTH_LONG).show();
+
+                update();
+
+                //TODO
+                Log.d("ItemTouchHelper", "" + adapter.getItemCount());
+                changeSelection(previousSelect);
+
+                            }
+
+            @Override
+            public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
+                View itemView = viewHolder.itemView;
+
+                // not sure why, but this method get's called for viewholder that are already swiped away
+                if (viewHolder.getAdapterPosition() == -1) {
+                    // not interested in those
+                    return;
+                }
+
+                if (!initiated) {
+                    init();
+                }
+
+                // draw red background
+                background.setBounds(itemView.getRight() + (int) dX, itemView.getTop(), itemView.getRight(), itemView.getBottom());
+                background.draw(c);
+
+                // draw x mark
+                int itemHeight = itemView.getBottom() - itemView.getTop();
+                int intrinsicWidth = xMark.getIntrinsicWidth();
+                int intrinsicHeight = xMark.getIntrinsicWidth();
+
+                int xMarkLeft = itemView.getRight() - xMarkMargin - intrinsicWidth;
+                int xMarkRight = itemView.getRight() - xMarkMargin;
+                int xMarkTop = itemView.getTop() + (itemHeight - intrinsicHeight) / 2;
+                int xMarkBottom = xMarkTop + intrinsicHeight;
+                xMark.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
+
+                xMark.draw(c);
+
+                super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+            }
+
+        };
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(simpleItemTouchCallback);
+        mItemTouchHelper.attachToRecyclerView(recyclerView);
+    }
+
+    /**
+     * We're gonna setup another ItemDecorator that will draw the red background in the empty space while the items are animating to thier new positions
+     * after an item is removed.
+     */
+    private void setUpAnimationDecoratorHelper() {
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+
+            // we want to cache this and not allocate anything repeatedly in the onDraw method
+            Drawable background;
+            boolean initiated;
+
+            private void init() {
+                background = new ColorDrawable(getActivity().getResources().getColor(R.color.colorAccent));
+                initiated = true;
+            }
+
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+
+                if (!initiated) {
+                    init();
+                }
+
+                // only if animation is in progress
+                if (parent.getItemAnimator().isRunning()) {
+
+                    // some items might be animating down and some items might be animating up to close the gap left by the removed item
+                    // this is not exclusive, both movement can be happening at the same time
+                    // to reproduce this leave just enough items so the first one and the last one would be just a little off screen
+                    // then remove one from the middle
+
+                    // find first child with translationY > 0
+                    // and last one with translationY < 0
+                    // we're after a rect that is not covered in recycler-view views at this point in time
+                    View lastViewComingDown = null;
+                    View firstViewComingUp = null;
+
+                    // this is fixed
+                    int left = 0;
+                    int right = parent.getWidth();
+
+                    // this we need to find out
+                    int top = 0;
+                    int bottom = 0;
+
+                    // find relevant translating views
+                    int childCount = parent.getLayoutManager().getChildCount();
+                    for (int i = 0; i < childCount; i++) {
+                        View child = parent.getLayoutManager().getChildAt(i);
+                        if (child.getTranslationY() < 0) {
+                            // view is coming down
+                            lastViewComingDown = child;
+                        } else if (child.getTranslationY() > 0) {
+                            // view is coming up
+                            if (firstViewComingUp == null) {
+                                firstViewComingUp = child;
+                            }
+                        }
+                    }
+
+                    if (lastViewComingDown != null && firstViewComingUp != null) {
+                        // views are coming down AND going up to fill the void
+                        top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
+                        bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                    } else if (lastViewComingDown != null) {
+                        // views are going down to fill the void
+                        top = lastViewComingDown.getBottom() + (int) lastViewComingDown.getTranslationY();
+                        bottom = lastViewComingDown.getBottom();
+                    } else if (firstViewComingUp != null) {
+                        // views are coming up to fill the void
+                        top = firstViewComingUp.getTop();
+                        bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                    }
+
+                    background.setBounds(left, top, right, bottom);
+                    background.draw(c);
+
+                }
+                super.onDraw(c, parent, state);
+            }
+
+        });
     }
 }
 

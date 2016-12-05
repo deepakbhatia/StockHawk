@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_activity_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -34,20 +35,29 @@
         android:layout_below="@+id/appLogo"
         android:layout_width="match_parent"
         android:layout_height="@dimen/details_app_bar_overlap" />
-
+    <TextView
+        android:id="@+id/fragment_stock_detail_container_empty_view"
+        android:layout_height="@dimen/stock_detail_card_size"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/appLogo"
+        android:gravity="center"
+        android:text="@string/no_stock_data_available"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        tools:layout="@layout/fragment_stock_detail"
+        />
     <android.support.v7.widget.CardView
         android:id="@+id/fragment_stock_detail_container"
         android:layout_height="@dimen/stock_detail_card_size"
         android:layout_width="match_parent"
         android:layout_below="@+id/appLogo"
-        android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
-        android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
+        android:layout_marginLeft="@dimen/stockListMargin"
+        android:layout_marginRight="@dimen/stockListMargin"
         app:cardElevation="@dimen/detail_card_elevation"
         app:cardPreventCornerOverlap="false"
         tools:layout="@layout/fragment_stock_detail"
         />
 
-    <fragment
+    <FrameLayout
         android:id="@+id/fragment_stock_list"
         android:name="com.bazaar.mizaaz.ui.StockListFragment"
         android:layout_height="match_parent"

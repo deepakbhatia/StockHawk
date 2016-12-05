@@ -1,11 +1,35 @@
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical">
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/detailViewToolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
 
-    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_launcher"
+            android:layout_gravity="center"
+            android:scaleType="center"
+            android:contentDescription="@string/app_logo"/>
+    </android.support.v7.widget.Toolbar>
+    <TextView
+        android:id="@+id/fragment_stock_detail_container_empty_view"
+        android:name="com.bazaar.mizaaz.ui.StockDetailActivity"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:layout_centerInParent="true"
+
+        android:text="No Stock Data Available"
+        android:textSize="@dimen/stock_price_text_size"
+        tools:layout="@layout/fragment_stock_detail"
+        />
+    <FrameLayout
         android:id="@+id/fragment_stock_detail_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

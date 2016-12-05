@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <dimen name="list_item_extra_padding">32dp</dimen>
     <dimen name="stock_detail_card_size">400dp</dimen>
+    <dimen name="stockListMargin">10dp</dimen>
+    <dimen name="detail_card_elevation">10dp</dimen>
+
 </resources>

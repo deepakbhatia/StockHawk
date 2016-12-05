@@ -3,20 +3,26 @@ package com.bazaar.mizaaz.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
+
+import butterknife.BindView;
 
 import static com.bazaar.mizaaz.ui.MainActivity.DETAILFRAGMENT_TAG;
 
 
 public class StockDetailActivity extends AppCompatActivity {
 
-    String symbol;
+    @BindView(R.id.fragment_stock_detail_container_empty_view)
+    TextView emptyView;
 
-    String stockHistory;
+    private String symbol;
+
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
@@ -28,15 +34,20 @@ public class StockDetailActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_stock_detail);
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.detailViewToolbar);
+
+        setSupportActionBar(toolbar);
+
+        //noinspection ConstantConditions
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         Intent stockIntent = getIntent();
 
         if(stockIntent.hasExtra(StockDetailActivityFragment.DETAIL_SYMBOL))
             symbol = stockIntent.getStringExtra(StockDetailActivityFragment.DETAIL_SYMBOL);
-
-        if(stockIntent.hasExtra(StockDetailActivityFragment.DETAIL_URI))
-            stockHistory = stockIntent.getStringExtra(StockDetailActivityFragment.DETAIL_URI);
-
 
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
@@ -44,7 +55,9 @@ public class StockDetailActivity extends AppCompatActivity {
 
             Bundle args = new Bundle();
             args.putString(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            args.putString(StockDetailActivityFragment.DETAIL_URI, stockHistory);
+            //args.putString(StockDetailActivityFragment.DETAIL_URI, stockJson);
+            args.putParcelable(StockDetailActivityFragment.DETAIL_URI, getIntent().getParcelableExtra(StockDetailActivityFragment.DETAIL_URI));
+
 
             StockDetailActivityFragment fragment = new StockDetailActivityFragment();
             fragment.setArguments(args);
@@ -71,6 +84,20 @@ public class StockDetailActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /*//Receive Message on no Stock Data in Detail
+    @Subscribe
+    public void onEvent(EmptyStockMessage event){
+
+       if(event.empty)
+       {
+           emptyView.setVisibility(View.VISIBLE);
+
+       }else{
+           emptyView.setVisibility(View.GONE);
+
+       }
+    }
+*/
 
 }
 
