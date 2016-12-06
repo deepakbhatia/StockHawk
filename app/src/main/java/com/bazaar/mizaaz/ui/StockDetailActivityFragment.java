@@ -28,8 +28,6 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.google.gson.Gson;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.ArrayList;
@@ -81,8 +79,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
     final private DecimalFormat dollarFormat;
     final private DecimalFormat percentageFormat;
     private Uri mStockUri;
-
-    private EventBus emptyBus = EventBus.getDefault();
 
 
     public StockDetailActivityFragment() {
@@ -181,17 +177,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
             if(stockDetailArg.containsKey(StockDetailActivityFragment.DETAIL_SYMBOL))
                 symbol = stockDetailArg.getString(StockDetailActivityFragment.DETAIL_SYMBOL);
 
-
-            /*if(stockDetailArg.containsKey(StockDetailActivityFragment.DETAIL_URI)){
-
-
-
-
-                Gson stockGSON = new Gson();
-                selectedStock = stockGSON.fromJson(stockDetailArg.getString(StockDetailActivityFragment.DETAIL_URI),Stock.class);
-
-            }*/
-
             if(stockDetailArg.containsKey(StockDetailActivityFragment.DETAIL_URI)){
 
 
@@ -200,7 +185,7 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
 
             }
 
-
+            //TOOD
             Log.d("Loadfinished",mStockUri.toString());
             /*stockHistory = selectedStock.stockHistory;
             //stockHistory = stockDetailArg.getString(StockDetailActivityFragment.DETAIL_URI);

@@ -28,6 +28,7 @@ import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
+import com.bazaar.mizaaz.message.GetStockUri;
 import com.bazaar.mizaaz.message.NetworkChangeMessage;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
 
@@ -173,6 +174,38 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
         }
     }
 
+    @Subscribe
+    public void onEvent(GetStockUri event){
+
+        String symbol = event.mUri;
+        if (mTwoPane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+
+            Bundle args = new Bundle();
+            args.putString(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
+            //args.putString(StockDetailActivityFragment.DETAIL_URI, contentUri.toString());
+            args.putParcelable(StockDetailActivityFragment.DETAIL_URI, Contract.Quote.makeUriForStock(symbol));
+            /*StockDetailActivityFragment df = (StockDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
+            if ( null != df ) {
+                df.updateFragment(symbol,contentUri.toString());
+            }*/
+            StockDetailActivityFragment fragment =  new StockDetailActivityFragment();
+            fragment.setArguments(args);
+
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.fragment_stock_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
+            Intent openStockDetailIntent = new Intent(this, StockDetailActivity.class);
+
+            openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
+            openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_URI,Contract.Quote.makeUriForStock(symbol));
+
+            startActivity(openStockDetailIntent);
+        }
+    }
     @Subscribe
     public void onEvent(NetworkChangeMessage event){
 

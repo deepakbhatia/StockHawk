@@ -37,10 +37,11 @@ import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
 import com.bazaar.mizaaz.data.Stock;
+import com.bazaar.mizaaz.message.GetStockUri;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
 import com.google.gson.Gson;
 
-import java.util.HashMap;
+import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -70,7 +71,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     @BindView(R.id.fragment_stock_list_root)
     View rootView;
     private StockAdapter adapter;
-    private HashMap stockHistoryMap;
     private boolean mTwoPane = false;
     private FragmentActivity mContext;
     private Unbinder unbinder;
@@ -171,8 +171,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     public void onRefresh() {
 
         update();
-        if(stockHistoryMap == null || stockHistoryMap.size() == 0)
-            Log.d("stockHistoryMap:","NONE:onRefresh");
+
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_network));
@@ -315,7 +314,10 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                     @Override
                     public void run() {
                         //mPosition = 0;
-                        ((Callback) getActivity()).onItemSelected(selectedSymbol);
+                        GetStockUri getStockUri = new GetStockUri();
+                        getStockUri.mUri = selectedSymbol;
+                        EventBus.getDefault().post(getStockUri );
+                        //((Callback) getActivity()).onItemSelected(selectedSymbol);
                     }
 
                 });
@@ -577,6 +579,9 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                         // views are coming up to fill the void
                         top = firstViewComingUp.getTop();
                         bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                    }
+                    else{
+                        bottom = lastViewComingDown.getBottom();
                     }
 
                     background.setBounds(left, top, right, bottom);
