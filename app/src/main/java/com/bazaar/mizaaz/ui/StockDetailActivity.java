@@ -18,6 +18,7 @@ import static com.bazaar.mizaaz.ui.MainActivity.DETAILFRAGMENT_TAG;
 
 public class StockDetailActivity extends AppCompatActivity {
 
+
     @BindView(R.id.fragment_stock_detail_container_empty_view)
     TextView emptyView;
 

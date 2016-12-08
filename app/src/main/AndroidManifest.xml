@@ -68,33 +68,23 @@
                 android:value="com.bazaar.mizaaz.ui.MainActivity" />
         </activity>
 
-        <!--
+
         <service
             android:name=".widget.StockWidgetService"
             android:exported="false"
             android:permission="android.permission.BIND_REMOTEVIEWS" />
 
-        &lt;!&ndash; provider this should be exported as true. else widget will not be able to read data and will crash&ndash;&gt;
-
-        <provider
-            android:name="com.sam_chordas.android.stockhawk.data.generated.QuoteProvider"
-            android:authorities="com.sam_chordas.android.stockhawk.data.QuoteProvider"
-            android:exported="true" />
-
-
-        &lt;!&ndash; Receiver &ndash;&gt;
 
         <receiver
-            android:name=".widget.S"
-            android:label="@string/widTitle">
+            android:name=".widget.StockWidgetProvider"
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
-                android:resource="@xml/widget_info" />
+                android:resource="@xml/stockwidgetprovider" />
         </receiver>
-        -->
 
         <receiver
             android:name=".NetworkChangeReceiver"

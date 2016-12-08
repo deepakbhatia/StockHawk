@@ -44,8 +44,8 @@ import static java.text.DateFormat.getDateInstance;
  * A placeholder fragment containing a simple view.
  */
 public class StockDetailActivityFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-    static final String DETAIL_URI = "URI";
-    static final String DETAIL_SYMBOL = "SYMBOL";
+    public static final String DETAIL_URI = "URI";
+    public static final String DETAIL_SYMBOL = "SYMBOL";
     private static final int STOCK_DETAIL_LOADER = 2;
 
     private String symbol;
@@ -186,7 +186,7 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
             }
 
             //TOOD
-            Log.d("Loadfinished",mStockUri.toString());
+            Log.d("Loadfinished",symbol);
             /*stockHistory = selectedStock.stockHistory;
             //stockHistory = stockDetailArg.getString(StockDetailActivityFragment.DETAIL_URI);
 

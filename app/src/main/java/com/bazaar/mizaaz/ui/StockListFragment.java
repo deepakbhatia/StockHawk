@@ -77,6 +77,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     private String swipedSymbol;
     private int mPosition = -1;
 
+    //TODO No stock data available showing
 
     @Override
     public void onClick(String symbol, int position) {
