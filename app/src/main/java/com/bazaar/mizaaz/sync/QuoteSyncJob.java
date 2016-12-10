@@ -12,7 +12,7 @@ import android.util.Log;
 
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
-import com.google.android.gms.gcm.GcmNetworkManager;
+//import com.google.android.gms.gcm.GcmNetworkManager;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -46,8 +46,8 @@ public final class QuoteSyncJob {
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
 
-    private static GcmNetworkManager mGcmNetworkManager ;
-    ;
+   // private static GcmNetworkManager mGcmNetworkManager ;
+
     private EventBus bus = EventBus.getDefault();
 
     static void getQuotes(Context context,Calendar from) {
