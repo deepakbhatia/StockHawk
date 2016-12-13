@@ -8,11 +8,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.util.Log;
 
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
-//import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.GcmNetworkManager;
+import com.google.android.gms.gcm.OneoffTask;
+import com.google.android.gms.gcm.PeriodicTask;
+import com.google.android.gms.gcm.Task;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -34,21 +38,29 @@ import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.quotes.stock.StockQuote;
 
+//import com.google.android.gms.gcm.GcmNetworkManager;
+
 public final class QuoteSyncJob {
 
 
 
     private static final int ONE_OFF_ID = 3;
-    private static final String ACTION_DATA_UPDATED = "com.bazaar.mizaaz.ACTION_DATA_UPDATED";
+    public static final String ACTION_DATA_UPDATED = "com.bazaar.mizaaz.ACTION_DATA_UPDATED";
 
     private static final int PERIOD = 3600000;
 
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
-
-   // private static GcmNetworkManager mGcmNetworkManager ;
+    private static GcmNetworkManager mGcmNetworkManager;
 
     private EventBus bus = EventBus.getDefault();
+
+    private void updateWidgets(Context context) {
+        // Setting the package ensures that only components in our app will receive the broadcast
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+                .setPackage(context.getPackageName());
+        context.sendBroadcast(dataUpdatedIntent);
+    }
 
     static void getQuotes(Context context,Calendar from) {
 
@@ -163,30 +175,40 @@ public final class QuoteSyncJob {
     private static void schedulePeriodic(Context context) {
         Timber.d("Scheduling a periodic task");
 
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
 
-        JobInfo.Builder builder = new JobInfo.Builder(PERIODIC_ID, new ComponentName(context, QuoteJobService.class));
+            Log.d("Periodic",""+android.os.Build.VERSION_CODES.LOLLIPOP);
 
-
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(PERIOD)
-                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
+            JobInfo.Builder builder = new JobInfo.Builder(PERIODIC_ID, new ComponentName(context, QuoteJobService.class));
 
 
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setPeriodic(PERIOD)
+                    .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
 
-        scheduler.schedule(builder.build());
-       /* if(mGcmNetworkManager == null)
-            mGcmNetworkManager = GcmNetworkManager.getInstance(context);
 
-        Task task = new PeriodicTask.Builder()
-                .setService(StockQuoteService.class)
-                .setPeriod(10)
-                .setFlex(5)
-                .setTag(StockQuoteService.TAG_TASK_PERIODIC)
-                .setPersisted(true)
-                .build();
+            JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
 
-        mGcmNetworkManager.schedule(task);*/
+            scheduler.schedule(builder.build());
+        }else{
+
+            Log.d("GCM:P",""+ Build.VERSION.SDK_INT);
+
+            Task task = new PeriodicTask.Builder()
+                    .setService(StockQuoteService.class)
+                    .setPeriod(3600)
+                    .setFlex(5)
+                    .setTag(StockQuoteService.TAG_TASK_PERIODIC)
+                    .setPersisted(true)
+                    .build();
+
+            if(mGcmNetworkManager == null)
+                mGcmNetworkManager = GcmNetworkManager.getInstance(context);
+
+
+            mGcmNetworkManager.schedule(task);
+        }
+
     }
 
 
@@ -203,16 +225,41 @@ public final class QuoteSyncJob {
 
     //TODO GCM
     private static void oneOffCurrent(Context context){
-        JobInfo.Builder builder = new JobInfo.Builder(ONE_OFF_ID, new ComponentName(context, QuoteJobService.class));
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            JobInfo.Builder builder = null;
+
+            Log.d("oneOffCurrent",""+android.os.Build.VERSION_CODES.LOLLIPOP);
+
+            builder = new JobInfo.Builder(ONE_OFF_ID, new ComponentName(context, QuoteJobService.class));
+            builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
 
 
-        builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setBackoffCriteria(INITIAL_BACKOFF, JobInfo.BACKOFF_POLICY_EXPONENTIAL);
+            JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+
+            scheduler.schedule(builder.build());
+        }else{
+
+            Log.d("GCM:OneOff",""+android.os.Build.VERSION_CODES.LOLLIPOP);
+
+            Task task = new OneoffTask.Builder()
+                    .setService(StockQuoteService.class)
+                    .setExecutionWindow(0, 30)
+                    .setTag(StockQuoteService.TAG_TASK_ONEOFF)
+                    .setUpdateCurrent(false)
+                    .setRequiredNetwork(Task.NETWORK_STATE_ANY)
+                    .setRequiresCharging(false)
+                    .build();
+
+            if(mGcmNetworkManager == null)
+                mGcmNetworkManager = GcmNetworkManager.getInstance(context);
 
 
-        JobScheduler scheduler = (JobScheduler) context.getSystemService(Context.JOB_SCHEDULER_SERVICE);
+            mGcmNetworkManager.schedule(task);
+        }
 
-        scheduler.schedule(builder.build());
+
+
     }
 
     synchronized public static void syncImmediately(Context context) {
@@ -222,24 +269,6 @@ public final class QuoteSyncJob {
                 (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = cm.getActiveNetworkInfo();
 
-
-
-        /*Task task = new OneoffTask.Builder()
-                .setService(StockQuoteService.class)
-                .setExecutionWindow(0, 1)
-                .setTag(StockQuoteService.TAG_TASK_ONEOFF)
-                .setUpdateCurrent(false)
-                .setRequiredNetwork(Task.NETWORK_STATE_CONNECTED)
-                .setRequiresCharging(false)
-                .build();
-
-        if(mGcmNetworkManager == null)
-        mGcmNetworkManager = GcmNetworkManager.getInstance(context);
-
-
-        mGcmNetworkManager.schedule(task);*/
-
-        //oneOffBulk(context);
 
         if (networkInfo != null && networkInfo.isConnectedOrConnecting()) {
             Intent nowIntent = new Intent(context, QuoteIntentService.class);

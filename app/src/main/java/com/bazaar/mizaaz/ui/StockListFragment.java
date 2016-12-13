@@ -179,7 +179,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             error.setVisibility(View.VISIBLE);
         } else if (!networkUp()) {
             swipeRefreshLayout.setRefreshing(false);
-            //Toast.makeText(getActivity(), getActivity().getString(R.string.error_no_network), Toast.LENGTH_LONG).show();
         } else if (PrefUtils.getStocks(getActivity()).size() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_stocks));
@@ -310,6 +309,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 }else{
                     selectedSymbol =  adapter.getSymbolAtPosition(mPosition);
 
+
                 }
                 recyclerView.post(new Runnable() {
                     @Override
@@ -322,6 +322,12 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                     }
 
                 });
+            }
+
+
+            if(mPosition != RecyclerView.NO_POSITION){
+                recyclerView.smoothScrollToPosition(mPosition);
+
             }
 
         }
@@ -389,14 +395,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
     private void changeSelection(int previousSelect){
 
-        Log.d("changeSelection",""+previousSelect);
-
-        //if(mPosition  previousSelect)
-        /*if(previousSelect == 0){
-            mPosition = 0;
-        }else if(previousSelect > 0){
-            mPosition = previousSelect - 1;
-        }*/
         if(mPosition <= previousSelect && mPosition > 0)
             mPosition = mPosition - 1;
 

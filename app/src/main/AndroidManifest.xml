@@ -15,14 +15,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".ui.MainActivity">
+        <activity
+            android:name=".ui.MainActivity"
+            android:theme="@style/AppTheme.Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--
+
         <service android:name="com.bazaar.mizaaz.sync.StockQuoteService"
             android:permission="com.google.android.gms.permission.BIND_NETWORK_TASK_SERVICE"
             android:exported="true">
@@ -30,7 +32,7 @@
                 <action android:name="com.google.android.gms.gcm.ACTION_TASK_READY"/>
             </intent-filter>
         </service>
-        -->
+
         <service
             android:name=".sync.QuoteIntentService"
             android:exported="false" />
@@ -60,7 +62,8 @@
 
         <activity
             android:name=".ui.StockDetailActivity"
-            android:parentActivityName=".ui.MainActivity">
+            android:parentActivityName=".ui.MainActivity"
+            android:theme="@style/AppTheme.Details">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
@@ -80,6 +83,8 @@
             android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.bazaar.mizaaz.ACTION_DATA_UPDATED" />
+
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
