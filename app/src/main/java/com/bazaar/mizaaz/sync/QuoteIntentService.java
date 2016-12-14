@@ -5,8 +5,6 @@ import android.content.Intent;
 
 import java.util.Calendar;
 
-import timber.log.Timber;
-
 
 public class QuoteIntentService extends IntentService {
 
@@ -18,7 +16,6 @@ public class QuoteIntentService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Timber.d("Intent handled");
 
         Calendar from =  Calendar.getInstance();
 

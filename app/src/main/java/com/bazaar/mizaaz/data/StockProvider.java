@@ -60,12 +60,9 @@ public class StockProvider extends ContentProvider {
     public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor returnCursor = null;
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        //TODO
-        Log.d("Query:Uri",""+uriMatcher.match(uri));
 
         switch (uriMatcher.match(uri)) {
             case QUOTE:
-                Log.d("QUOTE",""+uri.toString());
 
                 returnCursor = db.query(
                         Contract.Quote.TABLE_NAME,
@@ -79,7 +76,6 @@ public class StockProvider extends ContentProvider {
                 break;
 
             case QUOTE_FOR_SYMBOL:
-                Log.d("QUOTE_FOR_SYMBOL",""+Contract.Quote.getStockFromUri(uri));
                 returnCursor = db.query(
                         Contract.Quote.TABLE_NAME,
                         projection,

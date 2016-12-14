@@ -17,8 +17,6 @@ public final class PrefUtils {
     private PrefUtils() {
     }
 
-    //TODO
-    //Remove Default Stock Options
     public static Set<String> getStocks(Context context) {
         String stocksKey = context.getString(R.string.pref_stocks_key);
         String initializedKey = context.getString(R.string.pref_stocks_init_key);

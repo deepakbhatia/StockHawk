@@ -36,11 +36,6 @@
         <service
             android:name=".sync.QuoteIntentService"
             android:exported="false" />
-        <!--
-            <service
-            android:name=".sync.BulkHistoryIntentService"
-            android:exported="false" />
-        -->
 
         <provider
             android:name=".data.StockProvider"
@@ -52,13 +47,7 @@
             android:enabled="true"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!--
-            <service
-            android:name=".sync.HistoryQuoteService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE" />
-        -->
+
 
         <activity
             android:name=".ui.StockDetailActivity"

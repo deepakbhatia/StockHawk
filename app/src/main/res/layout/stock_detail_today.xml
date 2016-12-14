@@ -18,6 +18,8 @@
         android:id="@+id/detail_date_textview"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/activity_vertical_margin"
+        android:layout_marginLeft="@dimen/elementPadding"
+        android:layout_marginStart="@dimen/elementPadding"
         android:gravity="center_horizontal"
         style="@style/StockDetailTodayCard"
         android:textSize="@dimen/stock_detail_text_min_size"
@@ -45,11 +47,12 @@
             android:id="@+id/previousCloseLabel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            style="@style/StockDetailTodayCard"
+            android:textSize="@dimen/stock_detail_text_min_size"
             tools:text="@string/previous_day_close"/>
         <TextView
             android:id="@+id/detail_high_textview"
-            android:layout_marginLeft="@dimen/abc_list_item_padding_horizontal_material"
-            android:layout_marginStart="@dimen/abc_list_item_padding_horizontal_material"
+            android:layout_gravity="center"
             style="@style/StockDetailTodayCard"
             tools:text="$113.709" />
     </LinearLayout>
@@ -69,12 +72,12 @@
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textSize="@dimen/stock_detail_text_min_size"
             tools:text="@string/today_opening"/>
         <TextView
             android:id="@+id/detail_low_textview"
-            android:layout_marginRight="@dimen/abc_list_item_padding_horizontal_material"
-            android:layout_marginEnd="@dimen/abc_list_item_padding_horizontal_material"
             style="@style/StockDetailTodayCard"
+            android:layout_gravity="center"
             tools:text="$110.43" />
     </LinearLayout>
 
@@ -85,6 +88,9 @@
         android:layout_below="@+id/today_opening_section"
         android:gravity="center_horizontal"
         android:background="@drawable/percent_change_pill_green"
+        android:textColor="@android:color/white"
+        android:padding="@dimen/elementPadding"
+        android:textStyle="bold"
         tools:text="100%"
         />
 

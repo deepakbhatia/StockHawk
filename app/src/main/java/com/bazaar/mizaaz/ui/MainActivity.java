@@ -18,6 +18,7 @@ package com.bazaar.mizaaz.ui;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
@@ -32,12 +33,14 @@ import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.message.GetStockUri;
 import com.bazaar.mizaaz.message.NetworkChangeMessage;
+import com.bazaar.mizaaz.message.StockUpdateFail;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 //Todo
 //Stock Duplicate DONE
@@ -53,6 +56,9 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
     private EventBus bus = EventBus.getDefault();
     @BindView(R.id.fragment_stock_detail_container_empty_view)
     TextView emptyView;
+
+    @BindView(R.id.stockFab)
+    FloatingActionButton fab;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,19 +131,12 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
     @Override
     protected void onResume() {
         super.onResume();
-        /*String location = Utility.getPreferredLocation( this );
-        // update the location in our second pane using the fragment manager
-        if (location != null && !location.equals(mLocation)) {
-            ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentById(R.id.fragment_forecast);
-            if ( null != ff ) {
-                ff.onLocationChanged();
-            }
-            DetailFragment df = (DetailFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-            if ( null != df ) {
-                df.onLocationChanged(location);
-            }
-            mLocation = location;
-        }*/
+    }
+
+    @OnClick(R.id.stockFab)
+    public void addStockDialog(View view) {
+
+        new AddStockDialog().show(getSupportFragmentManager(), getString(R.string.stock_dialog_frag));
     }
 
     public void addStock(String symbol){
@@ -154,12 +153,8 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
 
             Bundle args = new Bundle();
             args.putString(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            //args.putString(StockDetailActivityFragment.DETAIL_URI, contentUri.toString());
             args.putParcelable(StockDetailActivityFragment.DETAIL_URI, Contract.Quote.makeUriForStock(symbol));
-            /*StockDetailActivityFragment df = (StockDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-            if ( null != df ) {
-                df.updateFragment(symbol,contentUri.toString());
-            }*/
+
             StockDetailActivityFragment fragment =  new StockDetailActivityFragment();
             fragment.setArguments(args);
 
@@ -209,12 +204,10 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
             ActivityOptionsCompat activityOptions =
                     ActivityOptionsCompat.makeSceneTransitionAnimation(this);
             ActivityCompat.startActivity(this, openStockDetailIntent, activityOptions.toBundle());
-
-            //startActivity(openStockDetailIntent);
         }
     }
     @Subscribe
-    public void onEvent(NetworkChangeMessage event){
+    public void networkChangeEvent(NetworkChangeMessage event){
 
         View rootView = (View)findViewById(R.id.main_activity_root);
 
@@ -223,12 +216,23 @@ public class MainActivity extends ActionBarActivity implements StockListFragment
         connectMessageBar.show();
     }
 
+
+    @Subscribe
+    public void stockUpdateFailEvent(StockUpdateFail updateFail){
+        View rootView = (View)findViewById(R.id.main_activity_root);
+
+        Snackbar connectMessageBar = Snackbar.make(rootView,updateFail.updateMessage,Snackbar.LENGTH_LONG);
+
+        connectMessageBar.show();
+    }
     @Override
     protected void onDestroy() {
         // Unregister
         bus.unregister(this);
         super.onDestroy();
     }
+
+
 
 
 

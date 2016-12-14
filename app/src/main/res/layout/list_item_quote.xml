@@ -37,7 +37,6 @@
         <TextView
             android:id="@+id/change"
             style="@style/StockChangeStyle"
-            android:background="@drawable/percent_change_pill_green"
             android:paddingLeft="@dimen/elementPadding"
             android:paddingStart="@dimen/elementPadding"
             android:paddingEnd="@dimen/elementPadding"

@@ -5,12 +5,9 @@
     <string name="dialog_hint">Symbol (e.g. GOOG)</string>
     <string name="dialog_cancel">Cancel</string>
     <string name="dialog_add">Add</string>
-
     <string name="error_no_network">No network connectivity! Will load stock cursor when the network is available.</string>
     <string name="error_no_stocks">No stocks added! Hit the floating action button to add one.</string>
-
     <string name="toast_stock_added_no_connectivity">Symbol %s added. Will refresh when network available.</string>
-
     <string name="stock_price_change">Stock Price of %1$s %2$s %3$s</string>
     <string name="price_increased_by">increased by</string>
     <string name="price_decreased_by">decreased by</string>
@@ -21,6 +18,8 @@
     <string name="today_opening">Today Opened</string>
     <string name="app_logo">App Logo</string>
     <string name="update_date">Update Date: %1$s</string>
+    <string name="no_stock_data_available">No Stock Data Available</string>
+
 
 
     <string name="app_name" translatable="false">Stock Hawk</string>
@@ -29,8 +28,6 @@
     <string name="default_stocks_apple" translatable="false">AAPL</string>
     <string name="default_stocks_microsoft" translatable="false">MSFT</string>
     <string name="default_stocks_facebook" translatable="false">FB</string>
-
-
     <string name="action_change_units" translatable="false">@string/pref_display_mode_key</string>
     <string name="pref_display_mode_key" translatable="false">displayMode</string>
     <string name="pref_display_mode_default" translatable="false">@string/pref_display_mode_percentage_key</string>
@@ -43,8 +40,10 @@
     <string name="pref_stocks_key" translatable="false">stocks</string>
     <string name="stock_list_fragment_tag">stock_list_fragment_tag</string>
     <string name="date_format" translatable="false">MM/dd/yyyy</string>
-    <string name="pref_stocks_init_key">pref_stocks_init_key</string>
-    <string name="no_stock_data_available">No Stock Data Available</string>
+    <string name="pref_stocks_init_key" translatable="false">pref_stocks_init_key</string>
+    <string name="unknown_host_message">Could not Connect to Yahoo Finance to Update Stock Quotes</string>
+    <string name="response_processing_issue">Problem processing response from Yahoo Finance.</string>
+    <string name="slow_response_exception">Yahoo Finance taking long to respond to update Stock Information</string>
 
 
 </resources>

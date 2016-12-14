@@ -53,18 +53,42 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_centerInParent="true" />
-    <FrameLayout
-        android:id="@+id/fragment_stock_list"
-        android:name="com.bazaar.mizaaz.ui.StockListFragment"
+    <RelativeLayout
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_alignEnd="@id/layout_center"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignRight="@id/layout_center"
-        android:layout_below="@+id/appbar"
-        tools:context="com.bazaar.mizaaz.ui.StockListFragment"
-        tools:layout="@android:layout/list_content" />
+        android:layout_below="@+id/appbar">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/stockFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/fab_plus"
+            android:layout_alignWithParentIfMissing="true"
+            app:useCompatPadding="true"
+            app:backgroundTint="@color/colorAccent"
+            app:borderWidth="2dp"
+            app:elevation="@dimen/fab_elevation"
+            app:fabSize="normal"
+            app:pressedTranslationZ="@dimen/fab_z"
+            android:onClick="addStockDialog"
+            android:contentDescription="@string/tap_to_open_dialog_to_add_new_stock_to_monitor"/>
+
+        <FrameLayout
+            android:id="@+id/fragment_stock_list"
+            android:name="com.bazaar.mizaaz.ui.StockListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+
+            tools:context="com.bazaar.mizaaz.ui.StockListFragment"
+            tools:layout="@android:layout/list_content"
+            />
+    </RelativeLayout>
     <android.support.v4.widget.Space
         android:id="@+id/cardviewAligner"
         android:layout_width="match_parent"

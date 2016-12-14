@@ -9,7 +9,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v7.widget.CardView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -97,7 +96,20 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
         detailSymbolTextView.setText(symbol);
         detailPriceTextView.setText(dollarFormat.format(selectedStock.stockCurrentPrice));
 
+        setChange();
 
+        detailHighTextView.setText(dollarFormat.format(selectedStock.previousClose));
+        detailLowTextView.setText(dollarFormat.format(selectedStock.stockOpen));
+        detailDateTextView.setText(String.format(getActivity().getString(R.string.update_date),selectedStock.dateValue));
+
+        previousCloseLabelTextView.setText(getActivity().getString(R.string.previous_day_close));
+        todayOpeningLabelTextView.setText(getActivity().getString(R.string.today_opening));
+
+
+    }
+
+
+    public void setChange(){
         float rawAbsoluteChange = selectedStock.absoluteStockChange;
         float percentageChange = selectedStock.percentStockChange;
         String higherOrLower;
@@ -126,24 +138,12 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
                 getActivity().getString(R.string.stock_price_change),symbol,higherOrLower,delta));
 
 
-        detailHighTextView.setText(String.valueOf(selectedStock.previousClose));
-        detailLowTextView.setText(String.valueOf(selectedStock.stockOpen));
-        detailDateTextView.setText(String.format(getActivity().getString(R.string.update_date),selectedStock.dateValue));
-
-        previousCloseLabelTextView.setText(getActivity().getString(R.string.previous_day_close));
-        todayOpeningLabelTextView.setText(getActivity().getString(R.string.today_opening));
-
-
     }
     private void processStockHistory()
     {
 
-        //TODO
-        Log.d("onLoadFinished:data",""+stockHistory+":");
         String[] lines = stockHistory.split("\n");
 
-        //TODO
-        Log.d("onLoadFinished:data",""+stockHistory+":"+lines[0]);
         ArrayList<Entry> entries = new ArrayList<Entry>();
         ArrayList<String> dateValues = new ArrayList<>();
         for(int i=0;i<lines.length;i++){
@@ -153,8 +153,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
             String dateString = getDateInstance().format(new Date(date));
             float price = Float.valueOf(dataToken.nextToken().trim());
 
-            //TODO
-            Log.d("onLoadFinished:data",""+price);
             entries.add(new Entry( price,i));
             dateValues.add(dateString);
         }
@@ -171,7 +169,11 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
 
         ButterKnife.bind(this,stockDetailView);
 
+
+
         Bundle stockDetailArg = getArguments();
+
+
 
         if(stockDetailArg !=null){
             if(stockDetailArg.containsKey(StockDetailActivityFragment.DETAIL_SYMBOL))
@@ -185,8 +187,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
 
             }
 
-            //TOOD
-            Log.d("Loadfinished",symbol);
             /*stockHistory = selectedStock.stockHistory;
             //stockHistory = stockDetailArg.getString(StockDetailActivityFragment.DETAIL_URI);
 
@@ -258,8 +258,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
     }
     private void updateChart(ArrayList<Entry> chartEntry, ArrayList<String> dateValues)
     {
-        //TODO
-        Log.d("updateChart",""+chartEntry.size()+":"+dateValues.size());
         LineDataSet set1 = new LineDataSet(chartEntry, "Label"); // add entries to dataset
         set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setAxisDependency(YAxis.AxisDependency.RIGHT);
@@ -327,8 +325,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
 
             stockGson.toJson(selectedStock);
 
-            //TODO
-            Log.d("onLoadFinished:data",""+selectedStock.stockHistory);
 
             processStockHistory();
             processStockDetail();

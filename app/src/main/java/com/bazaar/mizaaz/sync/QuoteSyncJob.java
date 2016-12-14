@@ -8,11 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
-import android.util.Log;
 
+import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
+import com.bazaar.mizaaz.message.StockUpdateFail;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.OneoffTask;
 import com.google.android.gms.gcm.PeriodicTask;
@@ -38,8 +38,6 @@ import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
 import yahoofinance.quotes.stock.StockQuote;
 
-//import com.google.android.gms.gcm.GcmNetworkManager;
-
 public final class QuoteSyncJob {
 
 
@@ -55,28 +53,18 @@ public final class QuoteSyncJob {
 
     private EventBus bus = EventBus.getDefault();
 
-    private void updateWidgets(Context context) {
-        // Setting the package ensures that only components in our app will receive the broadcast
-        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
-                .setPackage(context.getPackageName());
-        context.sendBroadcast(dataUpdatedIntent);
-    }
-
     static void getQuotes(Context context,Calendar from) {
-
-        Timber.d("Running sync job");
 
         Calendar to = Calendar.getInstance();
 
 
         try {
 
+
             Set<String> stockPref = PrefUtils.getStocks(context);
             Set<String> stockCopy = new HashSet<>();
             stockCopy.addAll(stockPref);
             String[] stockArray = stockPref.toArray(new String[stockPref.size()]);
-
-            Timber.d(stockCopy.toString());
 
             if (stockArray.length == 0) {
                 return;
@@ -84,8 +72,6 @@ public final class QuoteSyncJob {
 
             Map<String, Stock> quotes = YahooFinance.get(stockArray);
             Iterator<String> iterator = stockCopy.iterator();
-
-            Timber.d(quotes.toString());
 
             ArrayList<ContentValues> quoteCVs = new ArrayList<>();
 
@@ -107,15 +93,10 @@ public final class QuoteSyncJob {
                 float dayOpen = 0;
                 if(quote.getOpen()!=null)
                     dayOpen = quote.getOpen().floatValue();
-                /*if(quote.getDayLow()!= null && quote.getDayHigh()!=null){
-                    dayHigh = quote.getDayHigh().floatValue();
-                    dayLow = quote.getDayLow().floatValue();
-                }*/
+
 
                 String stockDateStr = quote.getLastTradeDateStr();
 
-                //TODO
-                Log.d("stockDateStr",stockDateStr+":"+previousClose+":"+dayOpen);
                 float price = quote.getPrice().floatValue();
                 float change = quote.getChange().floatValue();
                 float percentChange = quote.getChangeInPercent().floatValue();
@@ -148,8 +129,6 @@ public final class QuoteSyncJob {
 
                 quoteCVs.add(quoteCV);
 
-                Log.d("historyStock",historyBuilder.toString());
-
 
             }
 
@@ -158,26 +137,29 @@ public final class QuoteSyncJob {
                             Contract.Quote.uri,
                             quoteCVs.toArray(new ContentValues[quoteCVs.size()]));
 
-            Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+            Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED)
+                    .setPackage(context.getPackageName());
             context.sendBroadcast(dataUpdatedIntent);
+
 
         }
         catch (UnknownHostException exception) {
+            EventBus.getDefault().post(new StockUpdateFail(context.getString(R.string.unknown_host_message)));
             Timber.e(exception, "Error fetching stock quotes");
         } catch (SocketTimeoutException exception) {
+            EventBus.getDefault().post(new StockUpdateFail(context.getString(R.string.slow_response_exception)));
             Timber.e(exception, "Error fetching stock quotes");
         } catch (IOException exception) {
+            EventBus.getDefault().post(new StockUpdateFail(context.getString(R.string.response_processing_issue)));
+
             Timber.e(exception, "Error fetching stock quotes");
         }
 
     }
 
     private static void schedulePeriodic(Context context) {
-        Timber.d("Scheduling a periodic task");
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-
-            Log.d("Periodic",""+android.os.Build.VERSION_CODES.LOLLIPOP);
 
             JobInfo.Builder builder = new JobInfo.Builder(PERIODIC_ID, new ComponentName(context, QuoteJobService.class));
 
@@ -191,8 +173,6 @@ public final class QuoteSyncJob {
 
             scheduler.schedule(builder.build());
         }else{
-
-            Log.d("GCM:P",""+ Build.VERSION.SDK_INT);
 
             Task task = new PeriodicTask.Builder()
                     .setService(StockQuoteService.class)
@@ -223,12 +203,9 @@ public final class QuoteSyncJob {
 
     }
 
-    //TODO GCM
     private static void oneOffCurrent(Context context){
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             JobInfo.Builder builder = null;
-
-            Log.d("oneOffCurrent",""+android.os.Build.VERSION_CODES.LOLLIPOP);
 
             builder = new JobInfo.Builder(ONE_OFF_ID, new ComponentName(context, QuoteJobService.class));
             builder.setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
@@ -240,7 +217,6 @@ public final class QuoteSyncJob {
             scheduler.schedule(builder.build());
         }else{
 
-            Log.d("GCM:OneOff",""+android.os.Build.VERSION_CODES.LOLLIPOP);
 
             Task task = new OneoffTask.Builder()
                     .setService(StockQuoteService.class)

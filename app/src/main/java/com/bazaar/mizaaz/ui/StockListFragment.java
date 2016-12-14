@@ -1,5 +1,6 @@
 package com.bazaar.mizaaz.ui;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Canvas;
@@ -9,9 +10,10 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -19,12 +21,12 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.view.ViewCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -36,18 +38,14 @@ import android.widget.TextView;
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
-import com.bazaar.mizaaz.data.Stock;
 import com.bazaar.mizaaz.message.GetStockUri;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
-import com.google.gson.Gson;
 
 import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
-import timber.log.Timber;
 
 /**
  * Created by obelix on 29/11/2016.
@@ -62,8 +60,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
-    @BindView(R.id.fab)
-    FloatingActionButton fab;
     //@BindView(R.id.swipe_refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.error)
@@ -77,12 +73,8 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     private String swipedSymbol;
     private int mPosition = -1;
 
-    //TODO No stock data available showing
-
     @Override
     public void onClick(String symbol, int position) {
-        Timber.d("Symbol clicked: %s", symbol);
-
         mPosition = position;
 
         ((Callback) getActivity()).onItemSelected(symbol);
@@ -129,10 +121,31 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
         setHasOptionsMenu(true);
 
-
+        appBarBehaviour(root_view);
         onRefresh();
 
         return root_view;
+    }
+
+
+    private void appBarBehaviour(View rootView){
+        final AppBarLayout appbarView = (AppBarLayout)rootView.findViewById(R.id.appbar);
+        if (null != appbarView) {
+            ViewCompat.setElevation(appbarView, 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                    @Override
+                    public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                        if (0 == recyclerView.computeVerticalScrollOffset()) {
+                            appbarView.setElevation(0);
+                        } else {
+                            appbarView.setElevation(appbarView.getTargetElevation());
+                        }
+                    }
+                });
+            }
+        }
     }
 
 
@@ -201,11 +214,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         //getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
     }
 
-    @OnClick(R.id.fab)
-    public void addStockDialog(View view) {
-        new AddStockDialog().show(getChildFragmentManager(), getString(R.string.stock_dialog_frag));
-    }
-
     public void addStock(String symbol) {
 
 
@@ -239,53 +247,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 null, null, Contract.Quote.COLUMN_SYMBOL);
     }
 
-    private String movieParse(Cursor mCursor){
-        float stockPrice;
-        String stockSymbol;
-        float percentStockChange;
-        float absoluteStockChange;
-        String stockHistory;
-        String stockDate;
-        float stockOpen;
-        float stockClose;
-
-            final int priceIndex = mCursor.getColumnIndex(Contract.Quote.COLUMN_PRICE);
-            final int symbolColIndex = mCursor.getColumnIndex(
-                    Contract.Quote.COLUMN_SYMBOL);
-            final int changeColIndex = mCursor.getColumnIndex(
-                    Contract.Quote.COLUMN_PERCENTAGE_CHANGE);
-
-            final int changeAbsoluteColIndex = mCursor.getColumnIndex(
-                Contract.Quote.COLUMN_ABSOLUTE_CHANGE);
-
-            final int historyColIndex = mCursor.getColumnIndex(
-                    Contract.Quote.COLUMN_HISTORY);
-
-            stockPrice = mCursor.getFloat(priceIndex);
-            stockSymbol = mCursor.getString(symbolColIndex);
-            percentStockChange = mCursor.getFloat(changeColIndex);
-            absoluteStockChange = mCursor.getFloat(changeAbsoluteColIndex);
-            stockDate = mCursor.getString(Contract.Quote.POSITION_DATE);
-            stockOpen = mCursor.getFloat(Contract.Quote.POSITION_OPEN);
-            stockClose = mCursor.getFloat(Contract.Quote.POSITION_PREVIOUS_CLOSE);
-
-        stockHistory = mCursor.getString(historyColIndex);
-
-        Stock stock = new Stock();
-        stock.stockSymbol = stockSymbol;
-        stock.stockCurrentPrice = stockPrice;
-        stock.absoluteStockChange = absoluteStockChange;
-        stock.percentStockChange = percentStockChange;
-        stock.stockHistory = stockHistory;
-        stock.dateValue = stockDate;
-        stock.previousClose = stockClose;
-        stock.stockOpen = stockOpen;
-
-        Gson stockGson = new Gson();
-
-        return stockGson.toJson(stock);
-
-    }
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
@@ -303,8 +264,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 if (mPosition == -1) {
                     mPosition = 0;
                     selectedSymbol =  adapter.getSymbolAtPosition(0);
-                    //TODO
-                    Log.d("mPosition",selectedSymbol);
+
 
                 }else{
                     selectedSymbol =  adapter.getSymbolAtPosition(mPosition);
@@ -461,8 +421,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
                 update();
 
-                //TODO
-                Log.d("ItemTouchHelper", "" + adapter.getItemCount());
                 changeSelection(previousSelect);
 
                             }

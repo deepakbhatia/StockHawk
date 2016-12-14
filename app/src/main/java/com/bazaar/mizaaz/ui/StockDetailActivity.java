@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
+import com.bazaar.mizaaz.data.PrefUtils;
 
 import butterknife.BindView;
 
@@ -23,6 +24,8 @@ public class StockDetailActivity extends AppCompatActivity {
     TextView emptyView;
 
     private String symbol;
+
+    private StockDetailActivityFragment fragment;
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
@@ -60,7 +63,7 @@ public class StockDetailActivity extends AppCompatActivity {
             args.putParcelable(StockDetailActivityFragment.DETAIL_URI, getIntent().getParcelableExtra(StockDetailActivityFragment.DETAIL_URI));
 
 
-            StockDetailActivityFragment fragment = new StockDetailActivityFragment();
+            fragment = new StockDetailActivityFragment();
             fragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()
@@ -72,7 +75,7 @@ public class StockDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        //getMenuInflater().inflate(R.menu.detail, menu);
+        getMenuInflater().inflate(R.menu.main_activity_settings, menu);
         return true;
     }
 
@@ -81,9 +84,26 @@ public class StockDetailActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        if (item.getItemId() == R.id.action_change_units) {
 
+            PrefUtils.toggleDisplayMode(this);
+            setDisplayModeMenuItemIcon(item);
+            fragment.setChange();
+
+            return true;
+        }
         return super.onOptionsItemSelected(item);
     }
+
+    private void setDisplayModeMenuItemIcon(MenuItem item) {
+        if (PrefUtils.getDisplayMode(this)
+                .equals(getString(R.string.pref_display_mode_absolute_key))) {
+            item.setIcon(R.drawable.ic_percentage);
+        } else {
+            item.setIcon(R.drawable.ic_dollar);
+        }
+    }
+
 
     /*//Receive Message on no Stock Data in Detail
     @Subscribe
