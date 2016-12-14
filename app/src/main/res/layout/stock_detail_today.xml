@@ -2,7 +2,8 @@
     android:layout_height="wrap_content"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:tool="http://schemas.android.com/apk/res-auto">
+    android:layout_margin="@dimen/elementPadding"
+    >
 
     <TextView
         android:id="@+id/detail_symbol_textview"

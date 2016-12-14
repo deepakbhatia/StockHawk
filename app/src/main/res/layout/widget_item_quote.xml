@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/stock_widget_item"
+    android:layout_width="match_parent"
+    android:layout_height="?android:attr/listPreferredItemHeight"
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:background="@android:color/white"
+    android:paddingEnd="@dimen/elementPadding"
+    android:paddingRight="@dimen/elementPadding"
+    android:paddingStart="@dimen/elementPadding"
+    android:paddingLeft="@dimen/elementPadding"
+    >
+
+    <TextView
+        android:id="@+id/symbolValueWidget"
+        style="@style/StockSymbolTextStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="start|center_vertical"
+        tools:text="GOOG" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="end">
+
+        <TextView
+            android:id="@+id/priceValueWidget"
+            style="@style/StockPriceTextStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/widget_margin"
+            android:layout_marginRight="@dimen/symbol_margin"
+
+            tools:text="1000.00" />
+
+        <TextView
+            android:id="@+id/changeValueWidget"
+            style="@style/StockChangeStyle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="@dimen/widget_item_extra_padding"
+            android:paddingStart="@dimen/widget_item_extra_padding"
+            android:paddingEnd="@dimen/widget_item_extra_padding"
+            android:paddingRight="@dimen/widget_item_extra_padding"
+            tools:text="100%" />
+    </LinearLayout>
+
+</LinearLayout>

@@ -36,7 +36,6 @@
 
     <FrameLayout
         android:id="@+id/fragment_stock_list"
-
         android:name="com.bazaar.mizaaz.ui.StockListFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -50,7 +49,6 @@
             android:layout_centerHorizontal="true"
             android:layout_gravity="center|bottom"
             android:src="@drawable/fab_plus"
-            android:layout_margin="@dimen/fab_margin"
             app:useCompatPadding="true"
             app:backgroundTint="@color/colorAccent"
             app:borderWidth="2dp"

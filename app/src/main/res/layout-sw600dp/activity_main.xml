@@ -1,10 +1,11 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_activity_root"
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+
     >
     <RelativeLayout
         android:id="@+id/appbar"
@@ -69,13 +70,13 @@
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
             android:src="@drawable/fab_plus"
-            android:layout_alignWithParentIfMissing="true"
             app:useCompatPadding="true"
             app:backgroundTint="@color/colorAccent"
             app:borderWidth="2dp"
             app:elevation="@dimen/fab_elevation"
             app:fabSize="normal"
             app:pressedTranslationZ="@dimen/fab_z"
+
             android:onClick="addStockDialog"
             android:contentDescription="@string/tap_to_open_dialog_to_add_new_stock_to_monitor"/>
 
@@ -145,4 +146,4 @@
         />
 
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

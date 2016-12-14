@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <TextView
+                android:id="@+id/header"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/listPreferredItemHeight"
+                android:textColor="@android:color/white"
+                android:text="@string/app_name"
+                android:gravity="center"
+                android:textSize="@dimen/stock_symbol_size"
+                android:background="@color/colorPrimaryDark"
+                android:textStyle="bold"
+
+                />
+            <ListView
+                android:id="@+id/stock_list_widget"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+            </ListView>
+            <TextView
+                android:id="@+id/widget_error"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:gravity="center"
+                android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+                android:visibility="gone"
+                tools:text="Error message" />
+        </LinearLayout>
+</FrameLayout>
