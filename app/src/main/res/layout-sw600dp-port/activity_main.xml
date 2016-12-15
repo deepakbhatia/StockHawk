@@ -72,13 +72,14 @@
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/fab_plus"
-        android:layout_margin="@dimen/fab_margin"
         app:useCompatPadding="true"
         app:backgroundTint="@color/colorAccent"
         app:borderWidth="2dp"
         app:elevation="@dimen/fab_elevation"
         app:fabSize="normal"
         app:pressedTranslationZ="@dimen/fab_z"
+        android:layout_margin="@dimen/fab_margin"
+
         android:onClick="addStockDialog"
         android:contentDescription="@string/tap_to_open_dialog_to_add_new_stock_to_monitor"/>
 

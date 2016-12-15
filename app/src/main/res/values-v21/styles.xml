@@ -1,12 +1,10 @@
 <resources>
 
-    <style name="AppTheme.Main" parent="@style/AppTheme">
-        <item name="android:windowContentTransitions">true</item>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
     </style>
 
-    <style name="AppTheme.Details" parent="@style/AppTheme">
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowEnterTransition">@transition/details_window_enter_transition</item>
-        <item name="android:windowReturnTransition">@transition/details_window_return_transition</item>
-    </style>
 </resources>

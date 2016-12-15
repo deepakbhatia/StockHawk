@@ -17,7 +17,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".ui.MainActivity"
-            android:theme="@style/AppTheme.Main">
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -52,7 +52,7 @@
         <activity
             android:name=".ui.StockDetailActivity"
             android:parentActivityName=".ui.MainActivity"
-            android:theme="@style/AppTheme.Details">
+            android:theme="@style/AppTheme">
 
             <!-- Parent activity meta-data to support 4.0 and lower -->
             <meta-data
