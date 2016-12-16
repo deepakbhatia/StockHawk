@@ -380,6 +380,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
      */
     private void setUpItemTouchHelper() {
 
+        final StockListFragment stockListFragment = this;
         ItemTouchHelper.SimpleCallback simpleItemTouchCallback = new ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
 
             // we want to cache these and not allocate anything repeatedly in the onChildDraw method
@@ -415,15 +416,20 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
                 int deleteRecord = getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(swipedSymbol),null,null);
 
+                getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, stockListFragment);
+
+                //onRefresh();
+
                 PrefUtils.removeStock(getActivity(), swipedSymbol);
+
+
+
+                //changeSelection(previousSelect);
 
                 Snackbar.make(rootView, R.string.stock_deleted_message, Snackbar.LENGTH_LONG).show();
 
-                update();
 
-                changeSelection(previousSelect);
-
-                            }
+            }
 
             @Override
             public void onChildDraw(Canvas c, RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, float dX, float dY, int actionState, boolean isCurrentlyActive) {
