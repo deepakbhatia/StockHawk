@@ -19,13 +19,11 @@ public class StockQuoteService extends GcmTaskService {
     public static final String TAG_TASK_ONEOFF = "TAG_TASK_ONEOFF";
     public static final String TAG_TASK_PERIODIC = "TAG_TASK_PERIODIC";
     private static final int HISTORY_PERIOD = -10;
-    private Context mContext = null;
 
 
     public StockQuoteService(){}
 
     public StockQuoteService(Context context){
-        this.mContext = context;
     }
     @Override
     public void onInitializeTasks() {

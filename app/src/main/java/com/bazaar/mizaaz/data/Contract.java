@@ -46,7 +46,6 @@ public class Contract {
         public static final int POSITION_PREVIOUS_CLOSE = 8;
 
 
-        public static final String SELECTED_STOCK = "selected_stock";
         public static final String[] QUOTE_COLUMNS = {
                 _ID,
                 COLUMN_SYMBOL,
@@ -73,44 +72,4 @@ public class Contract {
 
 
     }
-
-    public static final class HistoryQuote implements BaseColumns {
-
-        public static final Uri uri = BASE_URI.buildUpon().appendPath(PATH_QUOTE_TREND).build();
-
-        public static final String TABLE_NAME = "history_quotes";
-
-        public static final String COLUMN_SYMBOL = "symbol";
-        public static final String COLUMN_DATE = "date";
-
-        public static final String COLUMN_PRICE = "price";
-
-
-        public static final int POSITION_ID = 0;
-        public static final int POSITION_SYMBOL = 1;
-        public static final int POSITION_DATE= 2;
-        public static final int POSITION_PRICE = 3;
-
-        public static final String[] QUOTE_COLUMNS = {
-                _ID,
-                COLUMN_SYMBOL,
-                COLUMN_DATE,
-                COLUMN_PRICE
-        };
-
-        public static Uri makeDateUriForStock(String symbol,String date) {
-            return uri.buildUpon().appendPath(date).appendPath(symbol).build();
-        }
-
-        public static String getStockFromUri(Uri uri) {
-            return uri.getPathSegments().get(1);
-        }
-
-        public static String getDateFromUri(Uri uri) {
-            return uri.getPathSegments().get(2);
-        }
-
-
-    }
-
 }

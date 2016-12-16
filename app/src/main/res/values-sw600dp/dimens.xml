@@ -3,6 +3,5 @@
     <dimen name="stock_detail_card_size">400dp</dimen>
     <dimen name="stockListMargin">10dp</dimen>
     <dimen name="detail_card_elevation">10dp</dimen>
-    <dimen name="fab_distance">200dp</dimen>
 
 </resources>

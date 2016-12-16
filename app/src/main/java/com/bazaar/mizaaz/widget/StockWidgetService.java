@@ -56,14 +56,14 @@ class StockRemoteViewsFactory implements RemoteViewsService.RemoteViewsFactory {
     public RemoteViews getViewAt(int position) {
         // Get the data for this position from the content provider
         float stockPrice = 0;
-        String stockSymbol = "Empty";
+        String stockSymbol = "";
         float stockPercentChange = 0;
         float stockAbsoluteChange = 0;
         String stockDate = "";
         float stockOpen = 0;
         float stockClose = 0;
 
-        String stockHistory = "empty";
+        String stockHistory = "";
         if (mCursor.moveToPosition(position)) {
 
             stockPrice = mCursor.getFloat(Contract.Quote.POSITION_PRICE);

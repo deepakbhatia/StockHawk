@@ -35,11 +35,8 @@
     <string name="pref_display_mode_absolute_key" translatable="false">absolute</string>
     <string name="pref_display_mode_percentage_key" translatable="false">percentage</string>
 
-    <string name="pref_stocks_initialized_key" translatable="false">initialized</string>
-
     <string name="pref_stocks_key" translatable="false">stocks</string>
     <string name="stock_list_fragment_tag">stock_list_fragment_tag</string>
-    <string name="date_format" translatable="false">MM/dd/yyyy</string>
     <string name="pref_stocks_init_key" translatable="false">pref_stocks_init_key</string>
     <string name="unknown_host_message">Could not Connect to Yahoo Finance to Update Stock Quotes</string>
     <string name="response_processing_issue">Problem processing response from Yahoo Finance.</string>

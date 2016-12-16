@@ -7,4 +7,9 @@
         <item name="toolbarStyle">@style/ToolbarStyle</item>
     </style>
 
+    <style name="ToolbarStyle" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">@color/colorPrimary</item>
+        <item name="android:popupTheme">@style/Theme.AppCompat.Light</item>
+    </style>
+
 </resources>

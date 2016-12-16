@@ -49,9 +49,6 @@ public final class QuoteSyncJob {
 
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
-    private static GcmNetworkManager mGcmNetworkManager;
-
-    private EventBus bus = EventBus.getDefault();
 
     static void getQuotes(Context context,Calendar from) {
 
@@ -157,7 +154,7 @@ public final class QuoteSyncJob {
 
     }
 
-    private static void schedulePeriodic(Context context) {
+    private  static void schedulePeriodic(Context context) {
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
 
@@ -182,28 +179,19 @@ public final class QuoteSyncJob {
                     .setPersisted(true)
                     .build();
 
-            if(mGcmNetworkManager == null)
-                mGcmNetworkManager = GcmNetworkManager.getInstance(context);
-
-
-            mGcmNetworkManager.schedule(task);
+            GcmNetworkManager.getInstance(context).schedule(task);
         }
 
     }
 
 
     synchronized public static void initialize(final Context context) {
-
-
         syncImmediately(context);
 
         schedulePeriodic(context);
-
-
-
     }
 
-    private static void oneOffCurrent(Context context){
+    private  static void oneOffCurrent(Context context){
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
             JobInfo.Builder builder = null;
 
@@ -227,11 +215,7 @@ public final class QuoteSyncJob {
                     .setRequiresCharging(false)
                     .build();
 
-            if(mGcmNetworkManager == null)
-                mGcmNetworkManager = GcmNetworkManager.getInstance(context);
-
-
-            mGcmNetworkManager.schedule(task);
+            GcmNetworkManager.getInstance(context).schedule(task);
         }
 
 

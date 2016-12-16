@@ -22,7 +22,6 @@
         android:name="com.bazaar.mizaaz.ui.StockDetailActivity"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_centerInParent="true"
         android:text="@string/no_stock_data_available"
         android:visibility="gone"
         android:textSize="@dimen/stock_price_text_size"

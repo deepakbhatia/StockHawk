@@ -42,9 +42,7 @@ public final class PrefUtils {
         }
 
 
-        Set<String> prfStocks = stockListPref.getStringSet(stocksKey, new HashSet<String>());
-
-        return prfStocks;
+        return stockListPref.getStringSet(stocksKey, new HashSet<String>());
 
     }
 

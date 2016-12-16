@@ -42,11 +42,6 @@ public class StockProvider extends ContentProvider {
         return matcher;
     }
 
-    //symbol = ? AND date = ?
-    private static final String sSymbolSettingAndDateRange =
-            Contract.HistoryQuote.TABLE_NAME +
-                    "." + Contract.HistoryQuote.COLUMN_SYMBOL + " = ? AND " +
-                    Contract.HistoryQuote.COLUMN_DATE + " <= ? ";
 
 
     @Override
@@ -168,16 +163,7 @@ public class StockProvider extends ContentProvider {
                 );
                 returnUri = Contract.Quote.uri;
                 break;
-            case TREND_QUOTE:
-                Log.d("uriMatcher",uri.toString());
 
-                db.insert(
-                        Contract.HistoryQuote.TABLE_NAME,
-                        null,
-                        values
-                );
-                returnUri = Contract.HistoryQuote.uri;
-                break;
             default:
                 throw new UnsupportedOperationException("Unknown URI:" + uri);
         }
@@ -266,25 +252,7 @@ public class StockProvider extends ContentProvider {
                 //db.close();
 
                 return returnCount;
-            case TREND_QUOTE:
-                db.beginTransaction();
-                int valueCount = 0;
-                try {
-                    for (ContentValues value : values) {
-                        db.insert(
-                                Contract.HistoryQuote.TABLE_NAME,
-                                null,
-                                value
-                        );
-                    }
-                    db.setTransactionSuccessful();
-                } finally {
-                    db.endTransaction();
-                }
-                getContext().getContentResolver().notifyChange(uri, null);
-                //db.close();
 
-                return valueCount;
             default:
                 //db.close();
                 return super.bulkInsert(uri, values);
