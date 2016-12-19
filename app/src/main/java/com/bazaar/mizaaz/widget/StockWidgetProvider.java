@@ -20,7 +20,7 @@ import com.bazaar.mizaaz.ui.StockDetailActivityFragment;
 
 public class StockWidgetProvider extends AppWidgetProvider {
 
-    private static final String WIDGET_CLICK = "";
+    private static final String CLICK_ACTION = "";
 
     @Override
     public void onReceive(Context context, Intent intent) {
@@ -32,7 +32,7 @@ public class StockWidgetProvider extends AppWidgetProvider {
             mgr.notifyAppWidgetViewDataChanged(mgr.getAppWidgetIds(cn), R.id.stock_list_widget);
 
         }
-        if (action.equals(WIDGET_CLICK)) {
+        if (action.equals(CLICK_ACTION)) {
             final String stockSymbol = intent.getStringExtra(StockDetailActivityFragment.DETAIL_SYMBOL);
             final Uri mUri = intent.getParcelableExtra(StockDetailActivityFragment.DETAIL_URI);
 
@@ -55,6 +55,9 @@ public class StockWidgetProvider extends AppWidgetProvider {
 
             // Create an Intent to launch ExampleActivity
             Intent intent = new Intent(context, StockWidgetService.class);
+/*
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, 0);
+*/
 
             RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.widget_layout);
 
@@ -63,13 +66,23 @@ public class StockWidgetProvider extends AppWidgetProvider {
             views.setEmptyView(R.id.stock_list_widget, R.id.widget_error);
 
             final Intent onClickIntent = new Intent(context, StockWidgetProvider.class);
-            onClickIntent.setAction(StockWidgetProvider.WIDGET_CLICK);
+            onClickIntent.setAction(StockWidgetProvider.CLICK_ACTION);
             onClickIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+            //onClickIntent.setData(Uri.parse(onClickIntent.toUri(Intent.URI_INTENT_SCHEME)));
             final PendingIntent onClickPendingIntent = PendingIntent.getBroadcast(context, 0,
                     onClickIntent, PendingIntent.FLAG_UPDATE_CURRENT);
             views.setPendingIntentTemplate(R.id.stock_list_widget, onClickPendingIntent);
 
 
+
+            // Get the layout for the App Widget and attach an on-click listener
+            // to the button
+
+
+
+            //views.setOnClickFillInIntent(R.id.stock_list_widget, intent);
+
+            // Tell the AppWidgetManager to perform an update on the current app widget
             appWidgetManager.updateAppWidget(appWidgetId, views);
         }
     }

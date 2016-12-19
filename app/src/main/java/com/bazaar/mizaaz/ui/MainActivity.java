@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -174,30 +172,23 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
             // adding or replacing the detail fragment using a
             // fragment transaction.
 
-            Bundle args = new Bundle();
+            /*Bundle args = new Bundle();
             args.putString(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            //args.putString(StockDetailActivityFragment.DETAIL_URI, contentUri.toString());
             args.putParcelable(StockDetailActivityFragment.DETAIL_URI, Contract.Quote.makeUriForStock(symbol));
-            /*StockDetailActivityFragment df = (StockDetailActivityFragment)getSupportFragmentManager().findFragmentByTag(DETAILFRAGMENT_TAG);
-            if ( null != df ) {
-                df.updateFragment(symbol,contentUri.toString());
-            }*/
+
             StockDetailActivityFragment fragment =  new StockDetailActivityFragment();
             fragment.setArguments(args);
 
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.fragment_stock_detail_container, fragment, DETAILFRAGMENT_TAG)
-                    .commit();
+                    .commit();*/
         } else {
             Intent openStockDetailIntent = new Intent(this, StockDetailActivity.class);
 
             openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
             openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_URI,Contract.Quote.makeUriForStock(symbol));
 
-
-            ActivityOptionsCompat activityOptions =
-                    ActivityOptionsCompat.makeSceneTransitionAnimation(this);
-            ActivityCompat.startActivity(this, openStockDetailIntent, activityOptions.toBundle());
+            startActivity(openStockDetailIntent);
         }
     }
     @Subscribe

@@ -8,7 +8,7 @@ import java.util.Calendar;
 
 public class QuoteIntentService extends IntentService {
 
-    private static final int HISTORY_PERIOD = -10;
+    private static final int HISTORY_PERIOD = -2;
 
     public QuoteIntentService() {
         super(QuoteIntentService.class.getSimpleName());

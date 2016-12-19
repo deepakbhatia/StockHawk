@@ -35,6 +35,7 @@ import java.util.Set;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
+import yahoofinance.histquotes.Interval;
 import yahoofinance.quotes.stock.StockQuote;
 
 public final class QuoteSyncJob {
@@ -100,7 +101,7 @@ public final class QuoteSyncJob {
                 float percentChange = quote.getChangeInPercent().floatValue();
 
 
-                List<HistoricalQuote> history = stock.getHistory(from,to);
+                List<HistoricalQuote> history = stock.getHistory(from,to, Interval.WEEKLY);
 
                 StringBuilder historyBuilder = new StringBuilder();
 

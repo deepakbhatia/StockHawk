@@ -363,9 +363,9 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
             if(adapter.getItemCount() > 0){
                 adapter.notifyDataSetChanged();
-                if(mTwoPane)
+                /*if(mTwoPane)
                     ((Callback) getActivity()).onItemSelected( adapter.getSymbolAtPosition(mPosition));
-
+*/
             }
 
             return true;
