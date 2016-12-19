@@ -5,11 +5,9 @@ import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 
 public class StockProvider extends ContentProvider {
@@ -23,11 +21,8 @@ public class StockProvider extends ContentProvider {
     private static final UriMatcher uriMatcher = buildUriMatcher();
 
     private DbHelper dbHelper;
-    private static final SQLiteQueryBuilder sStockByDateQueryBuilder;
 
-    static {
-        sStockByDateQueryBuilder = new SQLiteQueryBuilder();
-    }
+
     private static UriMatcher buildUriMatcher() {
         UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);
         matcher.addURI(Contract.AUTHORITY, Contract.PATH_QUOTE, QUOTE);
@@ -151,10 +146,8 @@ public class StockProvider extends ContentProvider {
     public Uri insert(@NonNull Uri uri, ContentValues values) {
         SQLiteDatabase db = dbHelper.getWritableDatabase();
         Uri returnUri;
-        Log.d("uriMatcher",uri.toString());
         switch (uriMatcher.match(uri)) {
             case QUOTE:
-                Log.d("uriMatcher",uri.toString());
 
                 db.insert(
                         Contract.Quote.TABLE_NAME,
@@ -220,10 +213,7 @@ public class StockProvider extends ContentProvider {
                 ,values
                 ,Contract.Quote.COLUMN_SYMBOL + " = ?"
                 ,selectionArgs);
-
-        Log.d("updateuri",""+updateRecord+":"+selectionArgs[0]);
         getContext().getContentResolver().notifyChange(uri, null);
-        //db.close();
         return updateRecord;
     }
 

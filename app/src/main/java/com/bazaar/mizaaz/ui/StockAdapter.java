@@ -4,6 +4,7 @@ package com.bazaar.mizaaz.ui;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -37,6 +38,8 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
         dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
         dollarFormatWithPlus = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
         dollarFormatWithPlus.setPositivePrefix("+$");
+        dollarFormatWithPlus.setNegativePrefix("-$");
+        dollarFormatWithPlus.setNegativeSuffix("");
         percentageFormat = (DecimalFormat) NumberFormat.getPercentInstance(Locale.getDefault());
         percentageFormat.setMaximumFractionDigits(2);
         percentageFormat.setMinimumFractionDigits(2);
@@ -75,6 +78,7 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
 
 
         float rawAbsoluteChange = cursor.getFloat(Contract.Quote.POSITION_ABSOLUTE_CHANGE);
+
         float percentageChange = cursor.getFloat(Contract.Quote.POSITION_PERCENTAGE_CHANGE);
         String higherOrLower;
         if (rawAbsoluteChange > 0) {
@@ -94,7 +98,7 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
             delta = change + context.getString(R.string.pref_display_mode_absolute_key);
         } else {
             holder.change.setText(percentage);
-            delta = percentage + context.getString(R.string.pref_display_mode_absolute_key);
+            delta = percentage + context.getString(R.string.pref_display_mode_percentage_key);
 
         }
         

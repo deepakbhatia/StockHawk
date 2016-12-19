@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
+import com.bazaar.mizaaz.message.BackPressMessage;
 import com.bazaar.mizaaz.message.GetStockUri;
 import com.bazaar.mizaaz.message.NetworkChangeMessage;
 import com.bazaar.mizaaz.message.StockUpdateFail;
@@ -118,6 +119,14 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
         super.onResume();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == RESULT_CANCELED){
+            EventBus.getDefault().post(new BackPressMessage(true));
+        }
+    }
+
     @OnClick(R.id.stockFab)
     public void addStockDialog(View view) {
 
@@ -152,7 +161,7 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
             openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
             openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_URI,Contract.Quote.makeUriForStock(symbol));
 
-            startActivity(openStockDetailIntent);
+            startActivityForResult(openStockDetailIntent,RESULT_CANCELED);
         }
     }
 

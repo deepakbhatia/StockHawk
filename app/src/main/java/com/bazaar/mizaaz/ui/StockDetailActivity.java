@@ -30,6 +30,9 @@ public class StockDetailActivity extends AppCompatActivity {
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
 
+        if ((keyCode == KeyEvent.KEYCODE_BACK)) {
+            finish();
+        }
         //View back = (View)findViewById(android.R.id.home);
         //getSupportActionBar()..requestFocus();
         return super.onKeyDown(keyCode, event);
@@ -75,7 +78,7 @@ public class StockDetailActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main_activity_settings, menu);
+        //getMenuInflater().inflate(R.menu.main_activity_settings, menu);
         return true;
     }
 
@@ -84,14 +87,14 @@ public class StockDetailActivity extends AppCompatActivity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        if (item.getItemId() == R.id.action_change_units) {
+        /*if (item.getItemId() == R.id.action_change_units) {
 
             PrefUtils.toggleDisplayMode(this);
             setDisplayModeMenuItemIcon(item);
             fragment.setChange();
 
             return true;
-        }
+        }*/
         return super.onOptionsItemSelected(item);
     }
 

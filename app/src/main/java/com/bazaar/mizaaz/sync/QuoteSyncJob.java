@@ -32,7 +32,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import timber.log.Timber;
 import yahoofinance.Stock;
 import yahoofinance.YahooFinance;
 import yahoofinance.histquotes.HistoricalQuote;
@@ -50,6 +49,8 @@ public final class QuoteSyncJob {
     private static final int INITIAL_BACKOFF = 10000;
     private static final int PERIODIC_ID = 1;
 
+
+
     static void getQuotes(Context context,Calendar from) {
 
         Calendar to = Calendar.getInstance();
@@ -61,7 +62,7 @@ public final class QuoteSyncJob {
             Set<String> stockPref = PrefUtils.getStocks(context);
             Set<String> stockCopy = new HashSet<>();
             stockCopy.addAll(stockPref);
-            String[] stockArray = stockPref.toArray(new String[stockPref.size()]);
+            String[] stockArray = stockCopy.toArray(new String[stockCopy.size()]);
 
             if (stockArray.length == 0) {
                 return;
@@ -142,14 +143,14 @@ public final class QuoteSyncJob {
         }
         catch (UnknownHostException exception) {
             EventBus.getDefault().post(new StockUpdateFail(context.getString(R.string.unknown_host_message)));
-            Timber.e(exception, "Error fetching stock quotes");
+            //Timber.e(exception, "Error fetching stock quotes");
         } catch (SocketTimeoutException exception) {
             EventBus.getDefault().post(new StockUpdateFail(context.getString(R.string.slow_response_exception)));
-            Timber.e(exception, "Error fetching stock quotes");
+            //Timber.e(exception, "Error fetching stock quotes");
         } catch (IOException exception) {
             EventBus.getDefault().post(new StockUpdateFail(context.getString(R.string.response_processing_issue)));
 
-            Timber.e(exception, "Error fetching stock quotes");
+            //Timber.e(exception, "Error fetching stock quotes");
         }
 
     }

@@ -37,14 +37,12 @@ public class StockQuoteService extends GcmTaskService {
 
         switch (taskParams.getTag()) {
             case TAG_TASK_ONEOFF:
-                Log.i(TAG, TAG_TASK_ONEOFF);
                 from.add(Calendar.YEAR, HISTORY_PERIOD);
                 QuoteSyncJob.getQuotes(getApplicationContext(),from);
 
                 // This is where useful work would go
                 return GcmNetworkManager.RESULT_SUCCESS;
             case TAG_TASK_PERIODIC:
-                Log.i(TAG, TAG_TASK_PERIODIC);
                 from.add(Calendar.YEAR, HISTORY_PERIOD);
                 QuoteSyncJob.getQuotes(getApplicationContext(),from);
                 // This is where useful work would go

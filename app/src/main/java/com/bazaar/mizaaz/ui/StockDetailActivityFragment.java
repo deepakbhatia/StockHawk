@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
-import com.bazaar.mizaaz.data.PrefUtils;
 import com.bazaar.mizaaz.data.Stock;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.components.XAxis;
@@ -84,6 +83,8 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
         dollarFormat = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
         dollarFormatWithPlus = (DecimalFormat) NumberFormat.getCurrencyInstance(Locale.US);
         dollarFormatWithPlus.setPositivePrefix("+$");
+        dollarFormatWithPlus.setNegativePrefix("-$");
+        dollarFormatWithPlus.setNegativeSuffix("");
         percentageFormat = (DecimalFormat) NumberFormat.getPercentInstance(Locale.getDefault());
         percentageFormat.setMaximumFractionDigits(2);
         percentageFormat.setMinimumFractionDigits(2);
@@ -122,17 +123,8 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
         }
 
         String change = dollarFormatWithPlus.format(rawAbsoluteChange);
-        String percentage = percentageFormat.format(percentageChange / 100);
-        String delta;
-        if (PrefUtils.getDisplayMode(getActivity())
-                .equals(getActivity().getString(R.string.pref_display_mode_absolute_key))) {
-            detailChangeTextView.setText(change);
-            delta = change + getActivity().getString(R.string.pref_display_mode_absolute_key);
-        } else {
-            detailChangeTextView.setText(percentage);
-            delta = percentage + getActivity().getString(R.string.pref_display_mode_absolute_key);
-
-        }
+        detailChangeTextView.setText(change);
+        String delta = change + getActivity().getString(R.string.pref_display_mode_absolute_key);
 
         detailChangeTextView.setContentDescription(String.format(
                 getActivity().getString(R.string.stock_price_change),symbol,higherOrLower,delta));
@@ -158,7 +150,6 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
         }
 
         updateChart(entries,dateValues);
-        //((StockDetailActivityFragment)getSupportFragmentManager().findFragmentById(R.id.stockDetailFragment)).updateFragment(entries,dateValues);
 
     }
 
@@ -187,20 +178,9 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
 
             }
 
-            /*stockHistory = selectedStock.stockHistory;
-            //stockHistory = stockDetailArg.getString(StockDetailActivityFragment.DETAIL_URI);
-
-            processStockDetail();
-
-            if(stockHistory != null){
-                processStockHistory();
-            }*/
-
-            //stockChart = (LineChart)stockDetailView.findViewById(R.id.stockDetailChart);
 
             stockChart.setBackgroundColor(getActivity().getResources().getColor(android.R.color.white));
 
-            //stockChart.setVisibility(View.GONE);
             xAxis = stockChart.getXAxis();
             xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
             xAxis.setTextSize(12f);
@@ -210,19 +190,7 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
             xAxis.setTextColor(Color.BLACK);
             xAxis.setAvoidFirstLastClipping(true);
             xAxis.setSpaceBetweenLabels(5);
-        /*xAxis.setCenterAxisLabels(true);
-        xAxis.setGranularity(24f); // one hour
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
 
-            private SimpleDateFormat mFormat = new SimpleDateFormat("dd MMM");
-
-            @Override
-            public String getFormattedValue(float value, AxisBase axis) {
-
-                long millis = TimeUnit.HOURS.toMillis((long) value);
-                return mFormat.format(new Date((long)value));
-            }
-        });*/
         }
 
         return stockDetailView;
@@ -258,7 +226,7 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
     }
     private void updateChart(ArrayList<Entry> chartEntry, ArrayList<String> dateValues)
     {
-        LineDataSet set1 = new LineDataSet(chartEntry, "Label"); // add entries to dataset
+        LineDataSet set1 = new LineDataSet(chartEntry, getString(R.string.stock_price_label)); // add entries to dataset
         set1.setMode(LineDataSet.Mode.LINEAR);
         set1.setAxisDependency(YAxis.AxisDependency.RIGHT);
         set1.setColor(getActivity().getResources().getColor(R.color.colorAccent));

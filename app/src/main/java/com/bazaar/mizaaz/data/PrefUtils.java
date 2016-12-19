@@ -12,20 +12,19 @@ import java.util.Set;
 
 import static android.content.Context.MODE_PRIVATE;
 
-public final class PrefUtils {
+public final class PrefUtils  {
 
     private PrefUtils() {
     }
 
-    public static Set<String> getStocks(Context context) {
+        public static Set<String> getStocks(Context context) {
         String stocksKey = context.getString(R.string.pref_stocks_key);
         String initializedKey = context.getString(R.string.pref_stocks_init_key);
 
         String[] defaultStocksList = context.getResources().getStringArray(R.array.default_stocks);
-        //String[] defaultStocksList = new String[10];
         HashSet<String> defaultStocks = new HashSet<>(Arrays.asList(defaultStocksList));
-        SharedPreferences stockListPref = context.getSharedPreferences("stockList", MODE_PRIVATE);
-        SharedPreferences stockAppPrefs = context.getSharedPreferences("stock_pref", MODE_PRIVATE);
+        SharedPreferences stockListPref = context.getSharedPreferences(context.getString(R.string.list_of_stocks), MODE_PRIVATE);
+        SharedPreferences stockAppPrefs = context.getSharedPreferences(context.getString(R.string.stock_app_prefs), MODE_PRIVATE);
 
 
 
@@ -48,7 +47,7 @@ public final class PrefUtils {
 
     private static void editStockPref(Context context, String symbol, Boolean add) {
 
-        SharedPreferences stockListPref = context.getSharedPreferences("stockList", MODE_PRIVATE);
+        SharedPreferences stockListPref = context.getSharedPreferences(context.getString(R.string.list_of_stocks), MODE_PRIVATE);
 
         String key = context.getString(R.string.pref_stocks_key);
         Set<String> stocks = stockListPref.getStringSet(key,new HashSet<String>());

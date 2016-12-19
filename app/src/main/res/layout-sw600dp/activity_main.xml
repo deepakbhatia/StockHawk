@@ -1,4 +1,4 @@
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main_activity_root"
@@ -63,22 +63,6 @@
         android:layout_alignRight="@id/layout_center"
         android:layout_below="@+id/appbar">
 
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/stockFab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_centerHorizontal="true"
-            android:src="@drawable/fab_plus"
-            android:layout_margin="@dimen/fab_margin"
-            app:useCompatPadding="true"
-            app:backgroundTint="@color/colorAccent"
-            app:borderWidth="2dp"
-            app:elevation="@dimen/fab_elevation"
-            app:fabSize="normal"
-            app:pressedTranslationZ="@dimen/fab_z"
-            android:onClick="addStockDialog"
-            android:contentDescription="@string/tap_to_open_dialog_to_add_new_stock_to_monitor"/>
 
         <FrameLayout
             android:id="@+id/fragment_stock_list"
@@ -89,6 +73,23 @@
             tools:context="com.bazaar.mizaaz.ui.StockListFragment"
             tools:layout="@android:layout/list_content"
             />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/stockFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:src="@drawable/fab_plus"
+            android:layout_margin="@dimen/fab_margin"
+            app:useCompatPadding="true"
+            app:backgroundTint="@color/colorAccent"
+            app:borderWidth="20dp"
+            app:elevation="@dimen/fab_elevation"
+            app:fabSize="normal"
+            android:onClick="addStockDialog"
+            app:pressedTranslationZ="@dimen/fab_z"
+            android:contentDescription="@string/tap_to_open_dialog_to_add_new_stock_to_monitor"/>
+
     </RelativeLayout>
     <android.support.v4.widget.Space
         android:id="@+id/cardviewAligner"
@@ -146,4 +147,4 @@
         />
 
 
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

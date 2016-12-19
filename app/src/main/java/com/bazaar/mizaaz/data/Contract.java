@@ -62,9 +62,6 @@ public class Contract {
             return uri.buildUpon().appendPath(symbol).build();
         }
 
-        public static Uri makeDateUriForStock(String symbol,String date) {
-            return uri.buildUpon().appendPath(date).appendPath(symbol).build();
-        }
 
         public static String getStockFromUri(Uri uri) {
             return uri.getLastPathSegment();

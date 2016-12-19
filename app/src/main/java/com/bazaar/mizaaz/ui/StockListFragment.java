@@ -38,10 +38,11 @@ import android.widget.TextView;
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
-import com.bazaar.mizaaz.message.GetStockUri;
+import com.bazaar.mizaaz.message.BackPressMessage;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -60,7 +61,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
-    //@BindView(R.id.swipe_refresh)
     private SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.error)
     TextView error;
@@ -90,6 +90,14 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         super.onCreate(savedInstanceState);
         // retain this fragment
         setRetainInstance(true);
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+
     }
 
     @Nullable
@@ -109,12 +117,40 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         swipeRefreshLayout = (SwipeRefreshLayout) root_view.findViewById(R.id.swipe_refresh);
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setRefreshing(true);
+        swipeRefreshLayout.setRefreshing(false);
 
 
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                boolean enable = false;
+                if(recyclerView != null && recyclerView.getChildCount() > 0){
+
+                    LinearLayoutManager layoutManager = ((LinearLayoutManager)recyclerView.getLayoutManager());
+                    int firstVisiblePosition = layoutManager.findFirstVisibleItemPosition();
+                    // check if the first item of the list is visible
+                    boolean firstItemVisible = firstVisiblePosition == 0;
+                    // check if the top of the first item is visible
+                    boolean topOfFirstItemVisible = recyclerView.getChildAt(0).getTop() == 0;
+                    // enabling or disabling the refresh layout
+                    enable = firstItemVisible && topOfFirstItemVisible;
+                }
+                swipeRefreshLayout.setEnabled(enable);
+            }
+
+
+        });
 
 
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(),1));
+
         setUpItemTouchHelper();
 
         setUpAnimationDecoratorHelper();
@@ -122,7 +158,11 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         setHasOptionsMenu(true);
 
         appBarBehaviour(root_view);
-        onRefresh();
+
+        QuoteSyncJob.syncImmediately(getActivity());
+        getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
+
+        //onRefresh();
 
         return root_view;
     }
@@ -159,12 +199,8 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             if(savedInstanceState.containsKey(SELECTED_ITEM))
             {
                 mPosition = savedInstanceState.getInt(SELECTED_ITEM);
-
-
             }
-
         }
-
 
     }
 
@@ -176,9 +212,9 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     private void update() {
-
         QuoteSyncJob.syncImmediately(getActivity());
-        getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
+        getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, this);
+
     }
 
     @Override
@@ -204,14 +240,12 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-
         outState.putInt(SELECTED_ITEM,mPosition);
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        //getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
     }
 
     public void addStock(String symbol) {
@@ -244,7 +278,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         return new CursorLoader(getActivity(),
                 Contract.Quote.uri,
                 Contract.Quote.QUOTE_COLUMNS,
-                null, null, Contract.Quote.COLUMN_SYMBOL);
+                null, null, null);
     }
 
     @Override
@@ -274,21 +308,18 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 recyclerView.post(new Runnable() {
                     @Override
                     public void run() {
-                        //mPosition = 0;
-                        GetStockUri getStockUri = new GetStockUri();
-                        getStockUri.mUri = selectedSymbol;
-                        EventBus.getDefault().post(getStockUri );
-                        //((Callback) getActivity()).onItemSelected(selectedSymbol);
+
+                        ((Callback) getActivity()).onItemSelected(selectedSymbol);
                     }
 
                 });
             }
 
 
-            if(mPosition != RecyclerView.NO_POSITION){
+            /*if(mPosition != RecyclerView.NO_POSITION){
                 recyclerView.smoothScrollToPosition(mPosition);
 
-            }
+            }*/
 
         }
 
@@ -350,6 +381,17 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Subscribe
+    public void onBackPressEvent(BackPressMessage backPressMessage){
+
+        if(backPressMessage.backPress){
+            if(!mTwoPane)
+            {
+                recyclerView.setAdapter(adapter);
+            }
+        }
     }
 
 
@@ -422,9 +464,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
                 PrefUtils.removeStock(getActivity(), swipedSymbol);
 
-
-
-                //changeSelection(previousSelect);
+                changeSelection(previousSelect);
 
                 Snackbar.make(rootView, R.string.stock_deleted_message, Snackbar.LENGTH_LONG).show();
 

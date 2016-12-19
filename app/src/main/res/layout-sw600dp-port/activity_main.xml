@@ -79,7 +79,6 @@
         app:fabSize="normal"
         app:pressedTranslationZ="@dimen/fab_z"
         android:layout_margin="@dimen/fab_margin"
-
         android:onClick="addStockDialog"
         android:contentDescription="@string/tap_to_open_dialog_to_add_new_stock_to_monitor"/>
 
