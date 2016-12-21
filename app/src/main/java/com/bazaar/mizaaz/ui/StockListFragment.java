@@ -357,7 +357,9 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             }
 
             if(adapter.getItemCount() != stocksCount){
-                swipeRefreshLayout.setRefreshing(true);
+
+                if(networkUp())
+                    swipeRefreshLayout.setRefreshing(true);
 
                 //Toast.makeText(getActivity(),"Could Not add the Stock",Toast.LENGTH_LONG).show();
             }
