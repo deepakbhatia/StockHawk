@@ -15,11 +15,11 @@ import android.widget.TextView;
 
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
+import com.bazaar.mizaaz.data.PrefUtils;
 import com.bazaar.mizaaz.message.BackPressMessage;
 import com.bazaar.mizaaz.message.GetStockUri;
 import com.bazaar.mizaaz.message.NetworkChangeMessage;
 import com.bazaar.mizaaz.message.StockUpdateFail;
-import com.bazaar.mizaaz.sync.QuoteSyncJob;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -27,14 +27,10 @@ import org.greenrobot.eventbus.Subscribe;
 import butterknife.BindView;
 import butterknife.OnClick;
 
-//Todo
-//Stock Duplicate DONE
-//Widget
-//Delete Stock DONE
-//Delete Current Selection DONE
+
 public class MainActivity extends AppCompatActivity implements StockListFragment.Callback {
 
-    public static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public static final String DETAILFRAGMENT_TAG = StockDetailActivityFragment.class.getSimpleName();
 
     private boolean mTwoPane;
     private EventBus bus = EventBus.getDefault();
@@ -43,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
 
     @BindView(R.id.stockFab)
     FloatingActionButton fab;
+
+    Snackbar connectMessageBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
 
 
         stockListFragment.setTwoPane(mTwoPane);
-        QuoteSyncJob.initialize(this);
+        //QuoteSyncJob.initialize(this);
 
 
     }
@@ -164,41 +162,51 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
     }
 
     @Subscribe
-    public void onEvent(GetStockUri event){
+    public void noStockEvent(GetStockUri event){
 
-        String symbol = event.mUri;
-        if (mTwoPane) {
-            // In two-pane mode, show the detail view in this activity by
-            // adding or replacing the detail fragment using a
-            // fragment transaction.
+        String symbol = event.symbol;
 
-            /*Bundle args = new Bundle();
-            args.putString(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            args.putParcelable(StockDetailActivityFragment.DETAIL_URI, Contract.Quote.makeUriForStock(symbol));
+        String message  = String.format(getResources().getString(R.string.no_stock_exists),symbol);
 
-            StockDetailActivityFragment fragment =  new StockDetailActivityFragment();
-            fragment.setArguments(args);
+        View rootView = (View)findViewById(R.id.main_activity_root);
 
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.fragment_stock_detail_container, fragment, DETAILFRAGMENT_TAG)
-                    .commit();*/
-        } else {
-            Intent openStockDetailIntent = new Intent(this, StockDetailActivity.class);
 
-            openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_SYMBOL,symbol);
-            openStockDetailIntent.putExtra(StockDetailActivityFragment.DETAIL_URI,Contract.Quote.makeUriForStock(symbol));
+        final Snackbar noStockMessageBar = Snackbar.make(rootView,message,Snackbar.LENGTH_INDEFINITE);
 
-            startActivity(openStockDetailIntent);
-        }
+        noStockMessageBar.setAction(R.string.dismiss_connection_message, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                noStockMessageBar.dismiss();
+            }
+        });
+
+        noStockMessageBar.show();
+
+        PrefUtils.removeStock(this, symbol);
+
+
     }
     @Subscribe
     public void networkChangeEvent(NetworkChangeMessage event){
 
         View rootView = (View)findViewById(R.id.main_activity_root);
 
-        Snackbar connectMessageBar = Snackbar.make(rootView,event.message,Snackbar.LENGTH_LONG);
+        if(event.connected){
+            if(connectMessageBar!=null && connectMessageBar.isShown())
+                connectMessageBar.dismiss();
+        }else{
+            connectMessageBar  = Snackbar.make(rootView,event.message,Snackbar.LENGTH_INDEFINITE);
+            connectMessageBar.setAction(R.string.dismiss_connection_message, new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    connectMessageBar.dismiss();
+                }
+            });
 
-        connectMessageBar.show();
+            connectMessageBar.show();
+        }
+
+
     }
 
 

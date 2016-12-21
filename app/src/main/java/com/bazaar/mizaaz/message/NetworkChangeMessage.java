@@ -8,6 +8,7 @@ public class NetworkChangeMessage {
 
     public String message;
 
+    public boolean connected;
     public NetworkChangeMessage(){
 
     }

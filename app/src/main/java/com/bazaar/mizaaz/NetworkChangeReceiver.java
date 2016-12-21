@@ -22,14 +22,20 @@ public class NetworkChangeReceiver extends BroadcastReceiver {
         if(intent.getExtras()!=null) {
             NetworkInfo ni=(NetworkInfo) intent.getExtras().get(ConnectivityManager.EXTRA_NETWORK_INFO);
             if(ni!=null && ni.getState()==NetworkInfo.State.CONNECTED) {
+                NetworkChangeMessage networkChangeMessage = new NetworkChangeMessage();
 
+                networkChangeMessage.connected  = true;
+
+                bus.post(networkChangeMessage);
             } else if(intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY,Boolean.FALSE)) {
 
                 NetworkChangeMessage networkChangeMessage = new NetworkChangeMessage();
 
-                networkChangeMessage.message = "There's no network connectivity";
+                networkChangeMessage.connected  = false;
 
-                bus.postSticky(networkChangeMessage);
+                networkChangeMessage.message = context.getString(R.string.error_no_network);
+
+                bus.post(networkChangeMessage);
             }
         }
 

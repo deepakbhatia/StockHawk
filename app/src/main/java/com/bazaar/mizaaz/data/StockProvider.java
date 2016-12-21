@@ -9,6 +9,8 @@ import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.bazaar.mizaaz.R;
+
 
 public class StockProvider extends ContentProvider {
 
@@ -75,8 +77,7 @@ public class StockProvider extends ContentProvider {
                         null,
                         sortOrder
                 );
-               // returnCursor.moveToFirst();
-                //Log.d("QUOTE_FOR_SYMBOL:",                ""+returnCursor);
+
                 break;
             case QUOTE_HISTORY_FOR_SYMBOL:
                 returnCursor = db.query(
@@ -91,50 +92,17 @@ public class StockProvider extends ContentProvider {
 
                 break;
 
-/*            case QUOTE_DATE_FOR_SYMBOL:
-                getStockByDate(uri, projection, sortOrder);
-
-                break;*/
             default:
-                throw new UnsupportedOperationException("Unknown URI:" + uri);
+                throw new UnsupportedOperationException(getContext().getString(R.string.unknown_uri) + uri);
         }
 
         if(returnCursor!=null)
         returnCursor.setNotificationUri(getContext().getContentResolver(), uri);
 
-/*        if (db.isOpen()) {
-            db.close();
-        }*/
 
         return returnCursor;
     }
 
-
-    /*
-
-        Uri weatherUri = Contract.HistoryQuote.
-        makeDateUriForStock(symbol,
-        long date);
-
-
-     */
-
-    /*private void getStockByDate(
-            Uri uri, String[] projection, String sortOrder) {
-        String symbol = Contract.HistoryQuote.getStockFromUri(uri);
-        long date = Long.parseLong(Contract.HistoryQuote.getDateFromUri(uri));
-
-
-
-        return sStockByDateQueryBuilder.query(dbHelper.getReadableDatabase(),
-                projection,
-                sSymbolSettingAndDateRange,
-                new String[]{symbol, Long.toString(date)},
-                null,
-                null,
-                sortOrder
-        );
-    }*/
     @Nullable
     @Override
     public String getType(@NonNull Uri uri) {
@@ -158,11 +126,10 @@ public class StockProvider extends ContentProvider {
                 break;
 
             default:
-                throw new UnsupportedOperationException("Unknown URI:" + uri);
+                throw new UnsupportedOperationException(getContext().getString(R.string.unknown_uri) + uri);
         }
 
         getContext().getContentResolver().notifyChange(uri, null);
-        //db.close();
 
         return returnUri;
     }
@@ -192,7 +159,7 @@ public class StockProvider extends ContentProvider {
                 );
                 break;
             default:
-                throw new UnsupportedOperationException("Unknown URI:" + uri);
+                throw new UnsupportedOperationException(getContext().getString(R.string.unknown_uri) + uri);
         }
 
         if (rowsDeleted != 0) {

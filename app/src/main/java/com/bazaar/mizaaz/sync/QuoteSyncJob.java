@@ -12,6 +12,8 @@ import android.net.NetworkInfo;
 import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
+import com.bazaar.mizaaz.message.GetStockUri;
+import com.bazaar.mizaaz.message.NetworkChangeMessage;
 import com.bazaar.mizaaz.message.StockUpdateFail;
 import com.google.android.gms.gcm.GcmNetworkManager;
 import com.google.android.gms.gcm.OneoffTask;
@@ -83,7 +85,9 @@ public final class QuoteSyncJob {
 
                 if(quote.getPrice() == null)
                 {
-                    //TODO Snackbar Message for Error in Stock Symbol
+                    GetStockUri getStockUri = new GetStockUri();
+                    getStockUri.symbol = symbol;
+                    EventBus.getDefault().post(getStockUri);
                     continue ;
                 }
                 float previousClose = 0;
@@ -91,7 +95,9 @@ public final class QuoteSyncJob {
                     previousClose = quote.getPreviousClose().floatValue();
                 float dayOpen = 0;
                 if(quote.getOpen()!=null)
+                {
                     dayOpen = quote.getOpen().floatValue();
+                }
 
 
                 String stockDateStr = quote.getLastTradeDateStr();
@@ -188,6 +194,15 @@ public final class QuoteSyncJob {
 
 
     synchronized public static void initialize(final Context context) {
+
+        if(!PrefUtils.isNetworkAvailable(context)){
+
+            NetworkChangeMessage networkChangeMessage = new NetworkChangeMessage();
+
+            networkChangeMessage.message = "There's no network connectivity";
+
+            EventBus.getDefault().post(networkChangeMessage);
+        }
         syncImmediately(context);
 
         schedulePeriodic(context);
@@ -240,6 +255,15 @@ public final class QuoteSyncJob {
 
             oneOffCurrent(context);
         }
+    }
+
+    synchronized public static void addImmediately(Context context, String symbol) {
+
+        PrefUtils.addStock(context, symbol);
+
+        syncImmediately(context);
+
+
     }
 
 

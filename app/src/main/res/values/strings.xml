@@ -22,7 +22,11 @@
     <string name="unknown_host_message">Could not Connect to Yahoo Finance to Update Stock Quotes</string>
     <string name="response_processing_issue">Problem processing response from Yahoo Finance.</string>
     <string name="slow_response_exception">Yahoo Finance taking long to respond to update Stock Information</string>
-    <string name="stock_price_label">Stock Price</string>
+    <string name="stock_price_label">Stock Price, Weekly interval</string>
+    <string name="dismiss_connection_message">Dismiss</string>
+    <string name="percentage">Percentage</string>
+    <string name="dollar">Dollar</string>
+    <string name="no_stock_exists">No information for Stock %1$s</string>
 
 
     <string name="app_name" translatable="false">Stock Hawk</string>
@@ -44,6 +48,9 @@
 
     <string name="list_of_stocks" translatable="false">stockList</string>
     <string name="stock_app_prefs" translatable="false">stock_pref</string>
+
+    <string name="unknown_uri" translatable="false">Unknown URI:</string>
+    <string name="stocks_count" translatable="false">stocksCount</string>
 
 
 </resources>

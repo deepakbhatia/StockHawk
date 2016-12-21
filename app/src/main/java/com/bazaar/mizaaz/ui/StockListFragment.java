@@ -2,6 +2,7 @@ package com.bazaar.mizaaz.ui;
 
 import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -39,6 +40,7 @@ import com.bazaar.mizaaz.R;
 import com.bazaar.mizaaz.data.Contract;
 import com.bazaar.mizaaz.data.PrefUtils;
 import com.bazaar.mizaaz.message.BackPressMessage;
+import com.bazaar.mizaaz.message.NetworkChangeMessage;
 import com.bazaar.mizaaz.sync.QuoteSyncJob;
 
 import org.greenrobot.eventbus.EventBus;
@@ -48,13 +50,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
 
+import static android.content.Context.MODE_PRIVATE;
+
 /**
  * Created by obelix on 29/11/2016.
  */
 
 public class StockListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>,
         SwipeRefreshLayout.OnRefreshListener,
-        StockAdapter.StockAdapterOnClickHandler {
+        StockAdapter.StockAdapterOnClickHandler, View.OnFocusChangeListener {
 
     private static final int STOCK_LOADER = 0;
     private static final String SELECTED_ITEM = "SELECTED_ITEM";
@@ -71,7 +75,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     private FragmentActivity mContext;
     private Unbinder unbinder;
     private String swipedSymbol;
-    private int mPosition = -1;
+    private int mPosition = 0;
 
     @Override
     public void onClick(String symbol, int position) {
@@ -79,6 +83,14 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
         ((Callback) getActivity()).onItemSelected(symbol);
 
+    }
+
+    @Override
+    public void onFocusChange(View view, boolean inFocus) {
+
+
+        //if(view.getId() == R.id.recycler_view && view.getVisibility() == View.VISIBLE)
+            //swipeRefreshLayout.setRefreshing(false);
     }
 
     public interface Callback {
@@ -114,11 +126,12 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        recyclerView.setOnFocusChangeListener(this);
         swipeRefreshLayout = (SwipeRefreshLayout) root_view.findViewById(R.id.swipe_refresh);
 
         swipeRefreshLayout.setOnRefreshListener(this);
-        swipeRefreshLayout.setRefreshing(false);
 
+        swipeRefreshLayout.setRefreshing(true);
 
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -142,6 +155,10 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                     // enabling or disabling the refresh layout
                     enable = firstItemVisible && topOfFirstItemVisible;
                 }
+
+                if(recyclerView!=null && recyclerView.getChildCount() == 0){
+                    enable = true;
+                }
                 swipeRefreshLayout.setEnabled(enable);
             }
 
@@ -159,10 +176,8 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
         appBarBehaviour(root_view);
 
-        QuoteSyncJob.syncImmediately(getActivity());
-        getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
+        onRefresh();
 
-        //onRefresh();
 
         return root_view;
     }
@@ -199,7 +214,10 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             if(savedInstanceState.containsKey(SELECTED_ITEM))
             {
                 mPosition = savedInstanceState.getInt(SELECTED_ITEM);
+
+
             }
+
         }
 
     }
@@ -212,22 +230,26 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     }
 
     private void update() {
+        getActivity().getSupportLoaderManager().initLoader(STOCK_LOADER, null, this);
+
+
         QuoteSyncJob.syncImmediately(getActivity());
-        getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, this);
 
     }
 
-    @Override
-    public void onRefresh() {
-
-        update();
-
+    private void errorCheck(){
         if (!networkUp() && adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_network));
             error.setVisibility(View.VISIBLE);
         } else if (!networkUp()) {
             swipeRefreshLayout.setRefreshing(false);
+
+            NetworkChangeMessage nChange = new NetworkChangeMessage();
+            nChange.connected = false;
+            nChange.message = getString(R.string.error_no_network);
+            EventBus.getDefault().post(nChange);
+
         } else if (PrefUtils.getStocks(getActivity()).size() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_stocks));
@@ -235,6 +257,15 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         } else {
             error.setVisibility(View.GONE);
         }
+    }
+    @Override
+    public void onRefresh() {
+
+        update();
+
+        errorCheck();
+
+
     }
 
     @Override
@@ -259,17 +290,22 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         if (symbol != null && !symbol.isEmpty()) {
 
 
-            if (networkUp()) {
+           /* if (networkUp()) {
                 swipeRefreshLayout.setRefreshing(true);
             } else {
                 String message = getString(R.string.toast_stock_added_no_connectivity, symbol);
                 //Toast.makeText(this, message, Toast.LENGTH_LONG).show();
             }
+*/
+            //PrefUtils.addStock(mContext, symbol);
 
-            PrefUtils.addStock(mContext, symbol);
+            QuoteSyncJob.addImmediately(mContext,symbol);
 
-            swipeRefreshLayout.setRefreshing(true);
-            onRefresh();
+            getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, this);
+
+            //swipeRefreshLayout.setRefreshing(true);
+
+            errorCheck();
         }
     }
 
@@ -284,10 +320,15 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
 
-        swipeRefreshLayout.setRefreshing(false);
+        SharedPreferences stockListPref = getActivity().getSharedPreferences(getActivity().getString(R.string.list_of_stocks), MODE_PRIVATE);
+
+        int stocksCount = stockListPref.getInt(getActivity().getString(R.string.stocks_count),0);
+
+        int count = data.getCount();
         adapter.setCursor(data);
 
-        if (data.getCount() != 0) {
+        if (count > 0) {
+
 
             error.setVisibility(View.GONE);
 
@@ -315,13 +356,18 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 });
             }
 
+            if(adapter.getItemCount() != stocksCount){
+                swipeRefreshLayout.setRefreshing(true);
 
-            /*if(mPosition != RecyclerView.NO_POSITION){
-                recyclerView.smoothScrollToPosition(mPosition);
+                //Toast.makeText(getActivity(),"Could Not add the Stock",Toast.LENGTH_LONG).show();
+            }
+            else{
+                swipeRefreshLayout.setRefreshing(false);
 
-            }*/
+            }
 
         }
+
 
     }
 
@@ -337,8 +383,12 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         if (PrefUtils.getDisplayMode(getActivity())
                 .equals(getString(R.string.pref_display_mode_absolute_key))) {
             item.setIcon(R.drawable.ic_percentage);
+            item.setTitle(getString(R.string.percentage));
+
         } else {
             item.setIcon(R.drawable.ic_dollar);
+            item.setTitle(getString(R.string.dollar));
+
         }
     }
 
@@ -348,6 +398,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main_activity_settings, menu);
         MenuItem item = menu.findItem(R.id.action_change_units);
+
         setDisplayModeMenuItemIcon(item);
     }
 
@@ -363,9 +414,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
             if(adapter.getItemCount() > 0){
                 adapter.notifyDataSetChanged();
-                /*if(mTwoPane)
-                    ((Callback) getActivity()).onItemSelected( adapter.getSymbolAtPosition(mPosition));
-*/
             }
 
             return true;
@@ -391,6 +439,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             {
                 recyclerView.setAdapter(adapter);
             }
+
         }
     }
 
@@ -459,8 +508,6 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                 int deleteRecord = getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(swipedSymbol),null,null);
 
                 getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, stockListFragment);
-
-                //onRefresh();
 
                 PrefUtils.removeStock(getActivity(), swipedSymbol);
 
@@ -582,10 +629,10 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
                         // views are coming up to fill the void
                         top = firstViewComingUp.getTop();
                         bottom = firstViewComingUp.getTop() + (int) firstViewComingUp.getTranslationY();
+                    } else if (lastViewComingDown == null && firstViewComingUp == null){
+                        right = 0;
                     }
-                    else{
-                        bottom = lastViewComingDown.getBottom();
-                    }
+
 
                     background.setBounds(left, top, right, bottom);
                     background.draw(c);

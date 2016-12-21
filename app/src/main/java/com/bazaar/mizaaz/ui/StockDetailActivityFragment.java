@@ -239,9 +239,9 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
         set1.setDrawCircleHole(true);
         set1.setCircleRadius(5f);
         set1.setCircleColor(getActivity().getResources().getColor(R.color.material_blue_700));
-
         LineData lineData = new LineData(dateValues,set1);
 
+        stockChart.setDescription("");
         stockChart.setData(lineData);
         stockChart.notifyDataSetChanged();
         stockChart.invalidate();

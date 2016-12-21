@@ -2,6 +2,8 @@ package com.bazaar.mizaaz.data;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
 
 import com.bazaar.mizaaz.R;
@@ -32,11 +34,14 @@ public final class PrefUtils  {
             SharedPreferences.Editor stockListEditor = stockListPref.edit();
            stockListEditor.clear();
            stockListEditor.putStringSet(stocksKey, defaultStocks);
+           stockListEditor.putInt(context.getString(R.string.stocks_count),defaultStocks.size());
+
            stockListEditor.apply();
 
            SharedPreferences.Editor editor = stockAppPrefs.edit();
            editor.putBoolean(initializedKey, true);
-            editor.apply();
+
+           editor.apply();
            return defaultStocks;
         }
 
@@ -50,6 +55,7 @@ public final class PrefUtils  {
         SharedPreferences stockListPref = context.getSharedPreferences(context.getString(R.string.list_of_stocks), MODE_PRIVATE);
 
         String key = context.getString(R.string.pref_stocks_key);
+        String stocksCount  = context.getString(R.string.stocks_count);
         Set<String> stocks = stockListPref.getStringSet(key,new HashSet<String>());
         if (add) {
             stocks.add(symbol);
@@ -60,6 +66,8 @@ public final class PrefUtils  {
         SharedPreferences.Editor editor = stockListPref.edit();
         editor.clear();
         editor.putStringSet(key,stocks);
+        editor.putInt(stocksCount,stocks.size());
+
         editor.apply();
     }
 
@@ -107,4 +115,10 @@ public final class PrefUtils  {
         editor.apply();
     }
 
+    public static boolean isNetworkAvailable(Context context) {
+        ConnectivityManager connectivityManager
+                = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 }

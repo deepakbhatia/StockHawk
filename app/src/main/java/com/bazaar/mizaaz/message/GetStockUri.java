@@ -5,5 +5,5 @@ package com.bazaar.mizaaz.message;
  */
 
 public class GetStockUri {
-    public String mUri;
+    public String symbol;
 }

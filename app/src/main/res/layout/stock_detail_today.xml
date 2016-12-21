@@ -29,7 +29,7 @@
         android:textStyle="bold"
         android:textSize="@dimen/stock_detail_text_min_size"
         tools:text="Today, April 03"
-        android:background="@color/colorAccent"/>
+        android:background="@drawable/update_background"/>
 
     <TextView
         android:id="@+id/stock_price_textview"
@@ -75,7 +75,7 @@
         android:layout_below="@+id/stock_price_textview">
         <TextView
             android:id="@+id/todayOpeningLabel"
-
+            style="@style/StockDetailTodayCard"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/stock_detail_text_min_size"
@@ -93,7 +93,6 @@
         android:layout_centerHorizontal="true"
         android:layout_below="@+id/today_opening_section"
         android:gravity="center_horizontal"
-        android:background="@drawable/percent_change_pill_green"
         android:textColor="@android:color/white"
         android:padding="@dimen/elementPadding"
         android:textStyle="bold"
