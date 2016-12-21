@@ -65,7 +65,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
     @BindView(R.id.recycler_view)
     RecyclerView recyclerView;
-    private SwipeRefreshLayout swipeRefreshLayout;
+    public SwipeRefreshLayout swipeRefreshLayout;
     @BindView(R.id.error)
     TextView error;
     @BindView(R.id.fragment_stock_list_root)
@@ -81,7 +81,9 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
     public void onClick(String symbol, int position) {
         mPosition = position;
 
-        ((Callback) getActivity()).onItemSelected(symbol);
+        if(symbol!=null)
+
+            ((Callback) getActivity()).onItemSelected(symbol);
 
     }
 
@@ -250,7 +252,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             nChange.message = getString(R.string.error_no_network);
             EventBus.getDefault().post(nChange);
 
-        } else if (PrefUtils.getStocks(getActivity()).size() == 0) {
+        } else if (PrefUtils.getStocks(getActivity()).size() == 0 || adapter.getItemCount() == 0) {
             swipeRefreshLayout.setRefreshing(false);
             error.setText(getString(R.string.error_no_stocks));
             error.setVisibility(View.VISIBLE);
@@ -336,27 +338,34 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
                 final String selectedSymbol;
 
-                if (mPosition == -1) {
-                    mPosition = 0;
-                    selectedSymbol =  adapter.getSymbolAtPosition(0);
+                if(adapter.getItemCount() > 0){
+                    if (mPosition == -1) {
+                        mPosition = 0;
+                        selectedSymbol =  adapter.getSymbolAtPosition(0);
 
 
-                }else{
-                    selectedSymbol =  adapter.getSymbolAtPosition(mPosition);
+                    }else{
+
+                            selectedSymbol =  adapter.getSymbolAtPosition(mPosition);
 
 
-                }
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-
-                        ((Callback) getActivity()).onItemSelected(selectedSymbol);
                     }
+                    recyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
 
-                });
+                            if(selectedSymbol!=null)
+
+                                ((Callback) getActivity()).onItemSelected(selectedSymbol);
+                        }
+
+                    });
+                }
+
             }
 
             if(adapter.getItemCount() != stocksCount){
+
 
                 if(networkUp())
                     swipeRefreshLayout.setRefreshing(true);
@@ -371,6 +380,7 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
         }
 
 
+        errorCheck();
     }
 
 
@@ -453,14 +463,20 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
 
         if(mTwoPane)
         {
-            recyclerView.post(new Runnable() {
-                @Override
-                public void run() {
-                    mPosition = 0;
-                    ((Callback) getActivity()).onItemSelected(adapter.getSymbolAtPosition(mPosition));
-                }
+            if(adapter.getItemCount() > 0){
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mPosition = 0;
 
-            });
+                        String symbol = adapter.getSymbolAtPosition(mPosition);
+                        if(symbol!=null)
+                        ((Callback) getActivity()).onItemSelected(symbol);
+                    }
+
+                });
+            }
+
         }
 
     }
@@ -505,17 +521,21 @@ public class StockListFragment extends Fragment implements LoaderManager.LoaderC
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int swipeDir) {
 
                 int previousSelect =  viewHolder.getAdapterPosition();
-                swipedSymbol = adapter.getSymbolAtPosition(previousSelect);
 
-                int deleteRecord = getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(swipedSymbol),null,null);
+                if(previousSelect >= 0){
+                    swipedSymbol = adapter.getSymbolAtPosition(previousSelect);
 
-                getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, stockListFragment);
+                    int deleteRecord = getActivity().getContentResolver().delete(Contract.Quote.makeUriForStock(swipedSymbol),null,null);
 
-                PrefUtils.removeStock(getActivity(), swipedSymbol);
+                    getActivity().getSupportLoaderManager().restartLoader(STOCK_LOADER, null, stockListFragment);
 
-                changeSelection(previousSelect);
+                    PrefUtils.removeStock(getActivity(), swipedSymbol);
 
-                Snackbar.make(rootView, R.string.stock_deleted_message, Snackbar.LENGTH_LONG).show();
+                    changeSelection(previousSelect);
+
+                    Snackbar.make(rootView, R.string.stock_deleted_message, Snackbar.LENGTH_LONG).show();
+                }
+
 
 
             }

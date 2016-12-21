@@ -4,7 +4,6 @@ package com.bazaar.mizaaz.ui;
 import android.content.Context;
 import android.database.Cursor;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,8 +54,10 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
 
     String getSymbolAtPosition(int position) {
 
-        cursor.moveToPosition(position);
-        return cursor.getString(Contract.Quote.POSITION_SYMBOL);
+        if(cursor.moveToPosition(position))
+            return cursor.getString(Contract.Quote.POSITION_SYMBOL);
+        else
+            return null;
     }
 
     @Override
@@ -81,7 +82,7 @@ class StockAdapter extends RecyclerView.Adapter<StockAdapter.StockViewHolder> {
 
         float percentageChange = cursor.getFloat(Contract.Quote.POSITION_PERCENTAGE_CHANGE);
         String higherOrLower;
-        if (rawAbsoluteChange > 0) {
+        if (rawAbsoluteChange >= 0) {
             holder.change.setBackgroundResource(R.drawable.percent_change_pill_green);
             higherOrLower = context.getString(R.string.price_increased_by);
         } else {

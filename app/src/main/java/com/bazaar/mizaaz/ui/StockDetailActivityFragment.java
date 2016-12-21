@@ -114,7 +114,7 @@ public class StockDetailActivityFragment extends Fragment implements LoaderManag
         float rawAbsoluteChange = selectedStock.absoluteStockChange;
         float percentageChange = selectedStock.percentStockChange;
         String higherOrLower;
-        if (rawAbsoluteChange > 0) {
+        if (rawAbsoluteChange >= 0) {
             detailChangeTextView.setBackgroundResource(R.drawable.percent_change_pill_green);
             higherOrLower = getActivity().getString(R.string.price_increased_by);
         } else {

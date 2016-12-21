@@ -58,7 +58,6 @@ public final class QuoteSyncJob {
 
         Calendar to = Calendar.getInstance();
 
-
         try {
 
 

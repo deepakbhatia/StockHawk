@@ -193,7 +193,10 @@ public class MainActivity extends AppCompatActivity implements StockListFragment
 
         if(event.connected){
             if(connectMessageBar!=null && connectMessageBar.isShown())
+            {
                 connectMessageBar.dismiss();
+
+            }
         }else{
             connectMessageBar  = Snackbar.make(rootView,event.message,Snackbar.LENGTH_INDEFINITE);
             connectMessageBar.setAction(R.string.dismiss_connection_message, new View.OnClickListener() {
